@@ -1,7 +1,8 @@
 "use strict";
 
 // =====================================
-// KALAM E ALA HAZRAT
+// KALAM E ALA HAZRAT muhabbat ke sath
+
 // ENGLISH + URDU SECTIONS
 // =====================================
 
