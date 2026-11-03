@@ -5,7 +5,8 @@
 // ENGLISH + URDU SECTIONS
 // =====================================
 
-// HTML ELEMENTS
+// HTML ELEMENTS mera naam abdul hai
+
 
 const homePage = document.getElementById("homePage");
 const readerPage = document.getElementById("readerPage");
