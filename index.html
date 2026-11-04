@@ -1,208 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Kalam-e-Ala Hazrat</title>
     <meta property="og:site_name" content="Kalam-e-Ala Hazrat">
     <meta name="theme-color" content="#f7f9f6">
-
     <link rel="stylesheet" href="style.css">
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Website JavaScript -->
     <script src="config.js" defer></script>
     <script src="app.js" defer></script>
 </head>
 
 <body data-theme="light">
-
-    <!-- HEADER -->
     <header class="hero">
         <div class="brand-logo">
             <div class="brand-gumbad">
                 <img src="gumbad.jpg" alt="Gumbad e Ala Hazrat">
             </div>
-
-            <div class="brand-calligraphy" dir="rtl">
-                کلامِ اعلیٰ حضرت
-            </div>
-
-            <div class="brand-subtitle">
-                KALAM-E-ALA HAZRAT
-            </div>
-
+            <div class="brand-calligraphy" dir="rtl">کلامِ اعلیٰ حضرت</div>
+            <div class="brand-subtitle">KALAM-E-ALA HAZRAT</div>
             <div class="brand-divider"></div>
-
-            <div class="brand-poet" dir="rtl">
-                امام احمد رضا خان
-            </div>
+            <div class="brand-poet" dir="rtl">امام احمد رضا خان</div>
         </div>
-
         <h1>Kalam-E-ALA HAZRAT</h1>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <main class="container">
-
-        <!-- LANGUAGE SWITCH -->
         <div class="language-switch">
-            <button id="englishTab" class="language-btn active">English</button>
-            <button id="urduTab" class="language-btn">اردو</button>
+            <button id="englishTab" class="language-btn active" type="button">English</button>
+            <button id="urduTab" class="language-btn" type="button">اردو</button>
         </div>
 
-        <!-- TOOLBAR -->
         <div class="toolbar">
             <div class="search-box">
-                <span>⌕</span>
-                <input
-                    type="search"
-                    id="searchInput"
-                    placeholder="Search Kalam..."
-                    autocomplete="off"
-                >
+                <span class="search-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="img" aria-label="Search">
+                        <circle cx="10.8" cy="10.8" r="6.7"></circle>
+                        <path d="m16 16 5 5"></path>
+                    </svg>
+                </span>
+                <input type="search" id="searchInput" placeholder="Search Kalam..." autocomplete="off" aria-label="Search Kalam">
                 <div id="searchsuggestion" class="search-suggestion hidden"></div>
             </div>
 
             <div class="theme-area">
-                <button
-                    type="button"
-                    id="themeToggle"
-                    class="theme-toggle"
-                    aria-label="Switch to dark theme"
-                    aria-pressed="false"
-                    title="Switch theme"
-                >
-                    🌙 Dark
-                </button>
+                <button type="button" id="themeToggle" class="theme-toggle"
+                    aria-label="Switch to dark theme" aria-pressed="false" title="Switch theme">🌙 Dark</button>
             </div>
         </div>
 
-        <!-- ENGLISH ALPHABET -->
         <div id="englishAlphabet" class="alphabet-filter">
-            <button class="letter-btn active" data-letter="ALL">All</button>
-            <button class="letter-btn" data-letter="A">A</button>
-            <button class="letter-btn" data-letter="B">B</button>
-            <button class="letter-btn" data-letter="C">C</button>
-            <button class="letter-btn" data-letter="D">D</button>
-            <button class="letter-btn" data-letter="E">E</button>
-            <button class="letter-btn" data-letter="F">F</button>
-            <button class="letter-btn" data-letter="G">G</button>
-            <button class="letter-btn" data-letter="H">H</button>
-            <button class="letter-btn" data-letter="I">I</button>
-            <button class="letter-btn" data-letter="J">J</button>
-            <button class="letter-btn" data-letter="K">K</button>
-            <button class="letter-btn" data-letter="L">L</button>
-            <button class="letter-btn" data-letter="M">M</button>
-            <button class="letter-btn" data-letter="N">N</button>
-            <button class="letter-btn" data-letter="O">O</button>
-            <button class="letter-btn" data-letter="P">P</button>
-            <button class="letter-btn" data-letter="Q">Q</button>
-            <button class="letter-btn" data-letter="R">R</button>
-            <button class="letter-btn" data-letter="S">S</button>
-            <button class="letter-btn" data-letter="T">T</button>
-            <button class="letter-btn" data-letter="U">U</button>
-            <button class="letter-btn" data-letter="V">V</button>
-            <button class="letter-btn" data-letter="W">W</button>
-            <button class="letter-btn" data-letter="X">X</button>
-            <button class="letter-btn" data-letter="Y">Y</button>
-            <button class="letter-btn" data-letter="Z">Z</button>
+            <button class="letter-btn active" data-letter="ALL" type="button">All</button>
+            <button class="letter-btn" data-letter="A" type="button">A</button>
+            <button class="letter-btn" data-letter="B" type="button">B</button>
+            <button class="letter-btn" data-letter="C" type="button">C</button>
+            <button class="letter-btn" data-letter="D" type="button">D</button>
+            <button class="letter-btn" data-letter="E" type="button">E</button>
+            <button class="letter-btn" data-letter="F" type="button">F</button>
+            <button class="letter-btn" data-letter="G" type="button">G</button>
+            <button class="letter-btn" data-letter="H" type="button">H</button>
+            <button class="letter-btn" data-letter="I" type="button">I</button>
+            <button class="letter-btn" data-letter="J" type="button">J</button>
+            <button class="letter-btn" data-letter="K" type="button">K</button>
+            <button class="letter-btn" data-letter="L" type="button">L</button>
+            <button class="letter-btn" data-letter="M" type="button">M</button>
+            <button class="letter-btn" data-letter="N" type="button">N</button>
+            <button class="letter-btn" data-letter="O" type="button">O</button>
+            <button class="letter-btn" data-letter="P" type="button">P</button>
+            <button class="letter-btn" data-letter="Q" type="button">Q</button>
+            <button class="letter-btn" data-letter="R" type="button">R</button>
+            <button class="letter-btn" data-letter="S" type="button">S</button>
+            <button class="letter-btn" data-letter="T" type="button">T</button>
+            <button class="letter-btn" data-letter="U" type="button">U</button>
+            <button class="letter-btn" data-letter="V" type="button">V</button>
+            <button class="letter-btn" data-letter="W" type="button">W</button>
+            <button class="letter-btn" data-letter="X" type="button">X</button>
+            <button class="letter-btn" data-letter="Y" type="button">Y</button>
+            <button class="letter-btn" data-letter="Z" type="button">Z</button>
         </div>
 
-        <!-- URDU ALPHABET -->
         <div id="urduAlphabet" class="alphabet-filter urdu-alphabet hidden" dir="rtl">
-            <button class="letter-btn active" data-letter="ALL">سب</button>
-            <button class="letter-btn" data-letter="ا">ا</button>
-            <button class="letter-btn" data-letter="آ">آ</button>
-            <button class="letter-btn" data-letter="ب">ب</button>
-            <button class="letter-btn" data-letter="پ">پ</button>
-            <button class="letter-btn" data-letter="ت">ت</button>
-            <button class="letter-btn" data-letter="ٹ">ٹ</button>
-            <button class="letter-btn" data-letter="ث">ث</button>
-            <button class="letter-btn" data-letter="ج">ج</button>
-            <button class="letter-btn" data-letter="چ">چ</button>
-            <button class="letter-btn" data-letter="ح">ح</button>
-            <button class="letter-btn" data-letter="خ">خ</button>
-            <button class="letter-btn" data-letter="د">د</button>
-            <button class="letter-btn" data-letter="ڈ">ڈ</button>
-            <button class="letter-btn" data-letter="ذ">ذ</button>
-            <button class="letter-btn" data-letter="ر">ر</button>
-            <button class="letter-btn" data-letter="ڑ">ڑ</button>
-            <button class="letter-btn" data-letter="ز">ز</button>
-            <button class="letter-btn" data-letter="ژ">ژ</button>
-            <button class="letter-btn" data-letter="س">س</button>
-            <button class="letter-btn" data-letter="ش">ش</button>
-            <button class="letter-btn" data-letter="ص">ص</button>
-            <button class="letter-btn" data-letter="ض">ض</button>
-            <button class="letter-btn" data-letter="ط">ط</button>
-            <button class="letter-btn" data-letter="ظ">ظ</button>
-            <button class="letter-btn" data-letter="ع">ع</button>
-            <button class="letter-btn" data-letter="غ">غ</button>
-            <button class="letter-btn" data-letter="ف">ف</button>
-            <button class="letter-btn" data-letter="ق">ق</button>
-            <button class="letter-btn" data-letter="ک">ک</button>
-            <button class="letter-btn" data-letter="گ">گ</button>
-            <button class="letter-btn" data-letter="ل">ل</button>
-            <button class="letter-btn" data-letter="م">م</button>
-            <button class="letter-btn" data-letter="ن">ن</button>
-            <button class="letter-btn" data-letter="و">و</button>
-            <button class="letter-btn" data-letter="ہ">ہ</button>
-            <button class="letter-btn" data-letter="ھ">ھ</button>
-            <button class="letter-btn" data-letter="ء">ء</button>
-            <button class="letter-btn" data-letter="ی">ی</button>
+            <button class="letter-btn active" data-letter="ALL" type="button">سب</button>
+            <button class="letter-btn" data-letter="ا" type="button">ا</button>
+            <button class="letter-btn" data-letter="آ" type="button">آ</button>
+            <button class="letter-btn" data-letter="ب" type="button">ب</button>
+            <button class="letter-btn" data-letter="پ" type="button">پ</button>
+            <button class="letter-btn" data-letter="ت" type="button">ت</button>
+            <button class="letter-btn" data-letter="ٹ" type="button">ٹ</button>
+            <button class="letter-btn" data-letter="ث" type="button">ث</button>
+            <button class="letter-btn" data-letter="ج" type="button">ج</button>
+            <button class="letter-btn" data-letter="چ" type="button">چ</button>
+            <button class="letter-btn" data-letter="ح" type="button">ح</button>
+            <button class="letter-btn" data-letter="خ" type="button">خ</button>
+            <button class="letter-btn" data-letter="د" type="button">د</button>
+            <button class="letter-btn" data-letter="ڈ" type="button">ڈ</button>
+            <button class="letter-btn" data-letter="ذ" type="button">ذ</button>
+            <button class="letter-btn" data-letter="ر" type="button">ر</button>
+            <button class="letter-btn" data-letter="ڑ" type="button">ڑ</button>
+            <button class="letter-btn" data-letter="ز" type="button">ز</button>
+            <button class="letter-btn" data-letter="ژ" type="button">ژ</button>
+            <button class="letter-btn" data-letter="س" type="button">س</button>
+            <button class="letter-btn" data-letter="ش" type="button">ش</button>
+            <button class="letter-btn" data-letter="ص" type="button">ص</button>
+            <button class="letter-btn" data-letter="ض" type="button">ض</button>
+            <button class="letter-btn" data-letter="ط" type="button">ط</button>
+            <button class="letter-btn" data-letter="ظ" type="button">ظ</button>
+            <button class="letter-btn" data-letter="ع" type="button">ع</button>
+            <button class="letter-btn" data-letter="غ" type="button">غ</button>
+            <button class="letter-btn" data-letter="ف" type="button">ف</button>
+            <button class="letter-btn" data-letter="ق" type="button">ق</button>
+            <button class="letter-btn" data-letter="ک" type="button">ک</button>
+            <button class="letter-btn" data-letter="گ" type="button">گ</button>
+            <button class="letter-btn" data-letter="ل" type="button">ل</button>
+            <button class="letter-btn" data-letter="م" type="button">م</button>
+            <button class="letter-btn" data-letter="ن" type="button">ن</button>
+            <button class="letter-btn" data-letter="و" type="button">و</button>
+            <button class="letter-btn" data-letter="ہ" type="button">ہ</button>
+            <button class="letter-btn" data-letter="ھ" type="button">ھ</button>
+            <button class="letter-btn" data-letter="ء" type="button">ء</button>
+            <button class="letter-btn" data-letter="ی" type="button">ی</button>
         </div>
 
-        <!-- KALAM LIST -->
         <section id="homePage">
             <div class="section-heading">
                 <h2 id="sectionTitle">NAAT E PAAK</h2>
                 <span id="kalamCount">Loading...</span>
             </div>
-
             <div id="kalamList" class="kalam-grid">
                 <div class="loading">Kalam load ho rahe hain...</div>
             </div>
         </section>
 
-        <!-- READER PAGE -->
         <section id="readerPage" class="reader-page hidden">
-            <button id="backButton" class="back-button">← Back to Kalam</button>
-
+            <button id="backButton" class="back-button" type="button">← Back</button>
             <div class="reader-heading">
                 <h2 id="readerTitle"></h2>
             </div>
-
             <div class="reader-action-bar">
-                <button id="copyFullKalam" class="copy-full-btn">📋 Copy Full Kalam</button>
-
-                <div class="font-controls">
-                    <button id="fontDecrease" class="font-btn">A−</button>
-                    <button id="fontReset" class="font-btn">Reset</button>
-                    <button id="fontIncrease" class="font-btn">A+</button>
+                <button id="copyFullKalam" class="copy-full-btn" type="button">📋 Copy Full Kalam</button>
+                <div class="font-controls" aria-label="Font size controls">
+                    <button id="fontDecrease" class="font-btn" type="button" aria-label="Decrease font size">−</button>
+                    <button id="fontIncrease" class="font-btn" type="button" aria-label="Increase font size">+</button>
                 </div>
             </div>
-
             <div id="readerContent" class="reader-content"></div>
         </section>
 
-        <div id="message" class="message"></div>
+        <div id="message" class="message" role="status" aria-live="polite"></div>
     </main>
 
-    <!-- FOOTER -->
-    <footer>
-        <p>Kalam e ala Hazrat</p>
-    </footer>
+    <footer><p>Kalam e ala Hazrat</p></footer>
 </body>
 </html>
