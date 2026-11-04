@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://formyworkk72-art.github.io/kalam-e-ala-hazrat/sitemap.xml
