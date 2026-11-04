@@ -2,56 +2,66 @@
 <html lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Kalam e ala Hazrat</title>
+    <title>Kalam-e-Ala Hazrat</title>
     <meta property="og:site_name" content="Kalam-e-Ala Hazrat">
+    <meta name="theme-color" content="#071b16">
 
     <link rel="stylesheet" href="style.css">
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Website JavaScript -->
     <script src="config.js" defer></script>
     <script src="app.js" defer></script>
-    <<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 
 <body data-theme="light">
 
+    <!-- HEADER -->
     <header class="hero">
 
-    <div class="brand-logo">
+        <div class="brand-logo">
 
-        <div class="brand-gumbad">
-            <img src="gumbad.jpg" alt="Gumbad e Ala Hazrat">
+            <div class="brand-gumbad">
+                <img src="gumbad.jpg" alt="Gumbad e Ala Hazrat">
+            </div>
+
+            <div class="brand-calligraphy" dir="rtl">
+                کلامِ اعلیٰ حضرت
+            </div>
+
+            <div class="brand-subtitle">
+                KALAM-E-ALA HAZRAT
+            </div>
+
+            <div class="brand-divider"></div>
+
+            <div class="brand-poet" dir="rtl">
+                امام احمد رضا خان
+            </div>
+
         </div>
 
-        <div class="brand-calligraphy" dir="rtl">
-            کلامِ اعلیٰ حضرت
-        </div>
+        <h1>Kalam-E-ALA HAZRAT</h1>
 
-        <div class="brand-subtitle">
-            KALAM-E-ALA HAZRAT
-        </div>
+    </header>
 
-        <div class="brand-divider"></div>
-
-        <div class="brand-poet" dir="rtl">
-            امام احمد رضا خان
-        </div>
-
-    </div>
-
-    <h1>Kalam-E-ALA HAZRAT</h1>
-
-</header>
-
+    <!-- MAIN CONTAINER -->
     <main class="container">
 
         <!-- LANGUAGE SWITCH -->
@@ -71,18 +81,25 @@
         <div class="toolbar">
 
             <div class="search-box">
+
                 <span>⌕</span>
+
                 <input
-                type="search"
-                id="searchInput"
-                placeholder="Search Kalam..."
-                autoComplete="off"
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search Kalam..."
+                    autocomplete="off"
                 >
-                <div id="searchsuggestion"
-                class="search-suggestion hidden"></div>
+
+                <div
+                    id="searchsuggestion"
+                    class="search-suggestion hidden">
+                </div>
+
             </div>
 
             <div class="theme-area">
+
                 <label for="themeSelect">Theme</label>
 
                 <select id="themeSelect">
@@ -92,6 +109,7 @@
                     <option value="royal">Royal Blue</option>
                     <option value="classic">Classic Cream</option>
                 </select>
+
             </div>
 
         </div>
@@ -199,20 +217,20 @@
                 <h2 id="readerTitle"></h2>
                 <p id="readerPoet">Ala Hazrat</p>
             </div>
+
             <div class="reader-action-bar">
 
-    <button id="copyFullKalam" class="copy-full-btn">
-        📋 Copy Full Kalam
-    </button>
+                <button id="copyFullKalam" class="copy-full-btn">
+                    📋 Copy Full Kalam
+                </button>
 
-    <div class="font-controls">
-        <button id="fontDecrease" class="font-btn">A−</button>
-        <button id="fontReset" class="font-btn">Reset</button>
-        <button id="fontIncrease" class="font-btn">A+</button>
-    </div>
+                <div class="font-controls">
+                    <button id="fontDecrease" class="font-btn">A−</button>
+                    <button id="fontReset" class="font-btn">Reset</button>
+                    <button id="fontIncrease" class="font-btn">A+</button>
+                </div>
 
-</div>
-
+            </div>
 
             <div id="readerContent" class="reader-content"></div>
 
@@ -222,6 +240,7 @@
 
     </main>
 
+    <!-- FOOTER -->
     <footer>
         <p>Kalam e ala Hazrat</p>
     </footer>
