@@ -1,3 +1,4 @@
+
 "use strict";
 
 // =====================================
@@ -25,10 +26,17 @@ const copyFullKalam = document.getElementById("copyFullKalam");
 
 let englishKalams = [];
 let urduKalams = [];
+
 let currentLanguage = "english";
 let selectedLetter = "ALL";
 let currentKalams = [];
 let currentReaderKalam = null;
+
+// Stores the English and Urdu versions of the currently open Kalam.
+let readerKalamsByLanguage = {
+    english: null,
+    urdu: null
+};
 
 const HIGHLIGHT_STORAGE_KEY = "kalam-saved-highlights";
 
@@ -38,27 +46,52 @@ const HIGHLIGHT_STORAGE_KEY = "kalam-saved-highlights";
 // =====================================
 
 function applyTheme(theme, save = true) {
+
     const selectedTheme = theme === "dark" ? "dark" : "light";
+
     document.body.dataset.theme = selectedTheme;
 
-    if (save) localStorage.setItem("kalam-theme", selectedTheme);
+    if (save) {
+        localStorage.setItem("kalam-theme", selectedTheme);
+    }
 
     const isDark = selectedTheme === "dark";
-    themeToggle.textContent = isDark ? "☀️ Light" : "🌙 Dark";
-    themeToggle.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
-    themeToggle.setAttribute("aria-pressed", String(isDark));
-    themeToggle.title = isDark ? "Switch to light theme" : "Switch to dark theme";
 
-    const themeColor = document.querySelector('meta[name="theme-color"]');
-    if (themeColor) themeColor.setAttribute("content", isDark ? "#111a16" : "#f7f9f6");
+    themeToggle.textContent = isDark ? "☀️ Light" : "🌙 Dark";
+
+    themeToggle.setAttribute(
+        "aria-label",
+        isDark ? "Switch to light theme" : "Switch to dark theme"
+    );
+
+    themeToggle.setAttribute("aria-pressed", String(isDark));
+
+    themeToggle.title = isDark ? "Switch to light theme" : "Switch theme";
+
+    const themeColor = document.querySelector(
+        'meta[name="theme-color"]'
+    );
+
+    if (themeColor) {
+        themeColor.setAttribute(
+            "content",
+            isDark ? "#111a16" : "#f7f9f6"
+        );
+    }
 }
 
 const storedTheme = localStorage.getItem("kalam-theme");
+
 const initialTheme = storedTheme === "dark" ? "dark" : "light";
+
 applyTheme(initialTheme, storedTheme !== initialTheme);
 
 themeToggle.addEventListener("click", function () {
-    applyTheme(document.body.dataset.theme === "dark" ? "light" : "dark");
+
+    applyTheme(
+        document.body.dataset.theme === "dark" ? "light" : "dark"
+    );
+
 });
 
 
@@ -69,47 +102,77 @@ themeToggle.addEventListener("click", function () {
 let messageTimer;
 
 function showMessage(text) {
+
     message.textContent = text;
+
     clearTimeout(messageTimer);
+
     messageTimer = setTimeout(function () {
+
         message.textContent = "";
+
     }, 2500);
 }
 
 
 // =====================================
 // HIGHLIGHT STORAGE
-// Saved on this browser/device until user unhighlights.
 // =====================================
 
 function getSavedHighlights() {
+
     try {
-        return JSON.parse(localStorage.getItem(HIGHLIGHT_STORAGE_KEY) || "{}");
+
+        return JSON.parse(
+            localStorage.getItem(HIGHLIGHT_STORAGE_KEY) || "{}"
+        );
+
     } catch (error) {
+
         console.warn("Highlight data could not be read:", error);
+
         return {};
     }
 }
 
+
 function saveHighlight(kalam, coupletIndex, isHighlighted) {
+
+    if (!kalam) return;
+
     const saved = getSavedHighlights();
+
     const key = `${currentLanguage}:${String(kalam.id)}:${coupletIndex}`;
 
     if (isHighlighted) {
+
         saved[key] = true;
+
     } else {
+
         delete saved[key];
     }
 
     try {
-        localStorage.setItem(HIGHLIGHT_STORAGE_KEY, JSON.stringify(saved));
+
+        localStorage.setItem(
+            HIGHLIGHT_STORAGE_KEY,
+            JSON.stringify(saved)
+        );
+
     } catch (error) {
+
         showMessage("Highlight save nahi ho saka. Browser storage check karein.");
     }
 }
 
+
 function isHighlightSaved(kalam, coupletIndex) {
+
+    if (!kalam) return false;
+
     const key = `${currentLanguage}:${String(kalam.id)}:${coupletIndex}`;
+
     return getSavedHighlights()[key] === true;
 }
 
@@ -119,20 +182,29 @@ function isHighlightSaved(kalam, coupletIndex) {
 // =====================================
 
 function sortUrduKalams(kalams) {
+
     const alphabet = [
-        "ا", "آ", "ب", "پ", "ت",  "ث", "ج", "چ", "ح", "خ",
-        "د",  "ذ", "ر","ز",  "س", "ش", "ص", 
-        "ط", "ع", "غ",  "ق", "ک", "گ", "ل", "م", "ن",
-        "و", "ہ", "ی"
+        "ا", "آ", "ب", "پ", "ت", "ث",
+        "ج", "چ", "ح", "خ", "د", "ذ",
+        "ر", "ز", "س", "ش", "ص", "ط",
+        "ع", "غ", "ق", "ک", "گ", "ل",
+        "م", "ن", "و", "ہ", "ی"
     ];
 
     function getIndex(title) {
-        const firstLetter = Array.from((title || "").trim())[0];
+
+        const firstLetter = Array.from(
+            (title || "").trim()
+        )[0];
+
         const index = alphabet.indexOf(firstLetter);
+
         return index === -1 ? 999 : index;
     }
 
-    return [...kalams].sort((a, b) => getIndex(a.title) - getIndex(b.title));
+    return [...kalams].sort(
+        (a, b) => getIndex(a.title) - getIndex(b.title)
+    );
 }
 
 
@@ -141,18 +213,26 @@ function sortUrduKalams(kalams) {
 // =====================================
 
 async function loadKalams() {
+
     try {
+
         kalamList.textContent = "Kalam load ho rahe hain...";
 
-        if (!window.supabase) throw new Error("Supabase library load nahi hui.");
+        if (!window.supabase) {
+
+            throw new Error("Supabase library load nahi hui.");
+        }
 
         if (
             typeof SUPABASE_URL === "undefined" ||
             typeof SUPABASE_ANON_KEY === "undefined" ||
             typeof supabaseClient === "undefined"
         ) {
+
             throw new Error("config.js check karein.");
         }
+
+        // LOAD ENGLISH KALAMS
 
         const englishResult = await supabaseClient
             .from("kalaam")
@@ -160,10 +240,16 @@ async function loadKalams() {
             .order("id", { ascending: true });
 
         if (englishResult.error) {
-            throw new Error("English table error: " + englishResult.error.message);
+
+            throw new Error(
+                "English table error: " + englishResult.error.message
+            );
         }
 
         englishKalams = englishResult.data || [];
+
+
+        // LOAD URDU KALAMS
 
         const urduResult = await supabaseClient
             .from("kalaam_urdu")
@@ -171,7 +257,10 @@ async function loadKalams() {
             .order("id", { ascending: true });
 
         if (urduResult.error) {
-            throw new Error("Urdu table error: " + urduResult.error.message);
+
+            throw new Error(
+                "Urdu table error: " + urduResult.error.message
+            );
         }
 
         urduKalams = sortUrduKalams(urduResult.data || []);
@@ -180,44 +269,288 @@ async function loadKalams() {
         console.log("Urdu Kalam:", urduKalams);
 
         filterKalams();
+
     } catch (error) {
+
         console.error("SUPABASE ERROR:", error);
+
         kalamList.textContent = "ERROR: " + error.message;
     }
 }
 
 
 // =====================================
+// FIND SAME KALAM IN OTHER LANGUAGE
+// ONLY USE VERIFIED RELATIONSHIPS
+// NO UNRELATED KALAM
+// =====================================
+
+function findLanguageVersion(sourceKalam, targetLanguage) {
+
+    if (!sourceKalam) return null;
+
+    const targetKalams = targetLanguage === "english"
+        ? englishKalams
+        : urduKalams;
+
+    const sourceId = String(sourceKalam.id);
+
+    // Fields that point directly to the other language.
+
+    const directLinkFields = targetLanguage === "urdu"
+        ? [
+            "urdu_id",
+            "urdu_kalam_id",
+            "urdu_kalaam_id"
+        ]
+        : [
+            "english_id",
+            "english_kalam_id",
+            "english_kalaam_id"
+        ];
+
+
+    // CHECK DIRECT LINK
+
+    for (const field of directLinkFields) {
+
+        const linkedId = sourceKalam[field];
+
+        if (linkedId !== undefined && linkedId !== null) {
+
+            const match = targetKalams.find(function (item) {
+
+                return String(item.id) === String(linkedId);
+
+            });
+
+            if (match) return match;
+        }
+    }
+
+
+    // CHECK REVERSE LINK
+
+    const reverseLinkFields = targetLanguage === "urdu"
+        ? [
+            "english_id",
+            "english_kalam_id",
+            "english_kalaam_id"
+        ]
+        : [
+            "urdu_id",
+            "urdu_kalam_id",
+            "urdu_kalaam_id"
+        ];
+
+    const reverseMatch = targetKalams.find(function (item) {
+
+        return reverseLinkFields.some(function (field) {
+
+            return (
+                item[field] !== undefined &&
+                item[field] !== null &&
+                String(item[field]) === sourceId
+            );
+
+        });
+
+    });
+
+    if (reverseMatch) return reverseMatch;
+
+
+    // CHECK SHARED TRANSLATION GROUP
+
+    const groupFields = [
+        "translation_group_id",
+        "kalam_group_id",
+        "group_id",
+        "translation_key"
+    ];
+
+    for (const field of groupFields) {
+
+        const sourceGroup = sourceKalam[field];
+
+        if (
+            sourceGroup !== undefined &&
+            sourceGroup !== null &&
+            String(sourceGroup).trim() !== ""
+        ) {
+
+            const groupMatch = targetKalams.find(function (item) {
+
+                return (
+                    item[field] !== undefined &&
+                    item[field] !== null &&
+                    String(item[field]) === String(sourceGroup)
+                );
+
+            });
+
+            if (groupMatch) return groupMatch;
+        }
+    }
+
+    // IMPORTANT:
+    // Do not use same numeric ID as a fallback.
+    // Different Kalams can have the same ID in separate tables.
+
+    return null;
+}
+
+
+// =====================================
 // LANGUAGE SWITCH
+// HOME + READER PAGE
 // =====================================
 
 function switchLanguage(language) {
+
+    const readerIsOpen = !readerPage.classList.contains("hidden");
+
+    let translatedKalam = null;
+
+    let sourceKalam = null;
+
+
+    if (readerIsOpen) {
+
+        // Save the currently displayed language version.
+
+        if (currentReaderKalam) {
+
+            readerKalamsByLanguage[currentLanguage] =
+                currentReaderKalam;
+        }
+
+        sourceKalam =
+            readerKalamsByLanguage[currentLanguage] ||
+            readerKalamsByLanguage.english ||
+            readerKalamsByLanguage.urdu;
+
+
+        // First use an already loaded matching version.
+
+        translatedKalam = readerKalamsByLanguage[language];
+
+
+        // Otherwise search using verified relationship fields.
+
+        if (!translatedKalam && sourceKalam) {
+
+            translatedKalam = findLanguageVersion(
+                sourceKalam,
+                language
+            );
+
+            if (translatedKalam) {
+
+                readerKalamsByLanguage[language] =
+                    translatedKalam;
+            }
+        }
+    }
+
+
+    // CHANGE LANGUAGE
+
     currentLanguage = language;
+
     selectedLetter = "ALL";
+
     searchInput.value = "";
+
     hideSuggestions();
 
-    englishTab.classList.toggle("active", language === "english");
-    urduTab.classList.toggle("active", language === "urdu");
-    englishAlphabet.classList.toggle("hidden", language !== "english");
-    urduAlphabet.classList.toggle("hidden", language !== "urdu");
+
+    // UPDATE LANGUAGE BUTTONS
+
+    englishTab.classList.toggle(
+        "active",
+        language === "english"
+    );
+
+    urduTab.classList.toggle(
+        "active",
+        language === "urdu"
+    );
+
+
+    // UPDATE ALPHABET VISIBILITY
+
+    englishAlphabet.classList.toggle(
+        "hidden",
+        language !== "english"
+    );
+
+    urduAlphabet.classList.toggle(
+        "hidden",
+        language !== "urdu"
+    );
+
+
+    // UPDATE LANGUAGE TEXT
 
     if (language === "english") {
+
         searchInput.placeholder = "Search Kalam...";
+
         sectionTitle.textContent = "NAAT E PAAK";
+
         setActiveAlphabet(englishAlphabet, "ALL");
+
     } else {
+
         searchInput.placeholder = "کلام تلاش کریں...";
+
         sectionTitle.textContent = "نعتِ پاک";
+
         setActiveAlphabet(urduAlphabet, "ALL");
     }
 
-    document.body.classList.toggle("urdu-mode", language === "urdu");
+
+    document.body.classList.toggle(
+        "urdu-mode",
+        language === "urdu"
+    );
+
+
+    // UPDATE HOME PAGE LIST
+
     filterKalams();
+
+
+    // UPDATE OPEN READER
+
+    if (readerIsOpen) {
+
+        if (translatedKalam) {
+
+            currentReaderKalam = translatedKalam;
+
+            renderReaderKalam(translatedKalam);
+
+        } else {
+
+            renderUnavailableLanguage(sourceKalam);
+        }
+    }
 }
 
-englishTab.addEventListener("click", () => switchLanguage("english"));
-urduTab.addEventListener("click", () => switchLanguage("urdu"));
+
+englishTab.addEventListener("click", function () {
+
+    switchLanguage("english");
+
+});
+
+urduTab.addEventListener("click", function () {
+
+    switchLanguage("urdu");
+
+});
 
 
 // =====================================
@@ -225,75 +558,134 @@ urduTab.addEventListener("click", () => switchLanguage("urdu"));
 // =====================================
 
 function setActiveAlphabet(container, letter) {
-    container.querySelectorAll(".letter-btn").forEach(function (button) {
-        button.classList.toggle("active", button.dataset.letter === letter);
-    });
+
+    container.querySelectorAll(".letter-btn").forEach(
+        function (button) {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.letter === letter
+            );
+
+        }
+    );
 }
 
+
 function normalizeUrduLetter(letter) {
+
     const map = {
-        "أ": "ا", "إ": "ا", "ٱ": "ا",
-        "ى": "ی", "ي": "ی", "ے": "ی"
+        "أ": "ا",
+        "إ": "ا",
+        "ٱ": "ا",
+        "ى": "ی",
+        "ي": "ی",
+        "ے": "ی"
     };
+
     return map[letter] || letter;
 }
 
+
 function setupAlphabetButtons(container) {
-    container.querySelectorAll(".letter-btn").forEach(function (button) {
-        button.addEventListener("click", function () {
-            selectedLetter = button.dataset.letter;
-            setActiveAlphabet(container, selectedLetter);
-            filterKalams();
-        });
-    });
+
+    container.querySelectorAll(".letter-btn").forEach(
+        function (button) {
+
+            button.addEventListener("click", function () {
+
+                selectedLetter = button.dataset.letter;
+
+                setActiveAlphabet(container, selectedLetter);
+
+                filterKalams();
+
+            });
+
+        }
+    );
 }
 
 setupAlphabetButtons(englishAlphabet);
+
 setupAlphabetButtons(urduAlphabet);
 
 
 // =====================================
 // FILTER + SEARCH SUGGESTIONS
-// Suggestions show Kalam titles starting with typed text.
 // =====================================
 
 function filterKalams() {
+
     const rawQuery = searchInput.value.trim();
+
     const query = rawQuery.toLowerCase();
 
-    currentKalams = currentLanguage === "english" ? englishKalams : urduKalams;
+    currentKalams = currentLanguage === "english"
+        ? englishKalams
+        : urduKalams;
 
-    const filteredKalams = currentKalams.filter(function (kalam) {
-        const title = (kalam.title || "").trim();
-        const lyrics = (kalam.lyrics || "").trim();
 
-        const matchesSearch = currentLanguage === "english"
-            ? title.toLowerCase().includes(query) || lyrics.toLowerCase().includes(query)
-            : title.includes(rawQuery) || lyrics.includes(rawQuery);
+    const filteredKalams = currentKalams.filter(
+        function (kalam) {
 
-        let matchesLetter = true;
+            const title = (kalam.title || "").trim();
 
-        if (selectedLetter !== "ALL") {
-            if (currentLanguage === "english") {
-                matchesLetter = title.toUpperCase().startsWith(selectedLetter);
-            } else {
-                const firstLetter = normalizeUrduLetter(Array.from(title)[0] || "");
-                matchesLetter = firstLetter === normalizeUrduLetter(selectedLetter);
+            const lyrics = (kalam.lyrics || "").trim();
+
+            const matchesSearch = currentLanguage === "english"
+
+                ? title.toLowerCase().includes(query) ||
+                  lyrics.toLowerCase().includes(query)
+
+                : title.includes(rawQuery) ||
+                  lyrics.includes(rawQuery);
+
+
+            let matchesLetter = true;
+
+            if (selectedLetter !== "ALL") {
+
+                if (currentLanguage === "english") {
+
+                    matchesLetter = title
+                        .toUpperCase()
+                        .startsWith(selectedLetter);
+
+                } else {
+
+                    const firstLetter = normalizeUrduLetter(
+                        Array.from(title)[0] || ""
+                    );
+
+                    matchesLetter =
+                        firstLetter === normalizeUrduLetter(selectedLetter);
+                }
             }
-        }
 
-        return matchesSearch && matchesLetter;
-    });
+            return matchesSearch && matchesLetter;
+        }
+    );
+
 
     displayKalams(filteredKalams);
+
     renderSuggestions(rawQuery);
 }
 
+
+// =====================================
+// SEARCH SUGGESTIONS
+// =====================================
+
 function renderSuggestions(query) {
+
     searchSuggestion.replaceChildren();
 
     if (!query) {
+
         hideSuggestions();
+
         return;
     }
 
@@ -301,57 +693,104 @@ function renderSuggestions(query) {
         ? query.toLocaleLowerCase()
         : query;
 
+
     const matches = currentKalams.filter(function (kalam) {
+
         const title = (kalam.title || "").trim();
+
         return currentLanguage === "english"
+
             ? title.toLocaleLowerCase().startsWith(normalizedQuery)
+
             : title.startsWith(normalizedQuery);
+
     }).slice(0, 8);
 
+
     if (matches.length === 0) {
+
         hideSuggestions();
+
         return;
     }
 
+
     matches.forEach(function (kalam) {
+
         const item = document.createElement("button");
+
         item.type = "button";
+
         item.className = "suggestion-item";
+
         item.textContent = kalam.title || "Untitled Kalam";
+
         item.dir = currentLanguage === "urdu" ? "rtl" : "auto";
 
+
         item.addEventListener("click", function () {
+
             hideSuggestions();
+
             searchInput.value = kalam.title || "";
+
             openKalam(kalam.id);
+
         });
 
+
         searchSuggestion.appendChild(item);
+
     });
+
 
     searchSuggestion.classList.remove("hidden");
 }
 
+
 function hideSuggestions() {
+
     searchSuggestion.classList.add("hidden");
+
     searchSuggestion.replaceChildren();
 }
 
+
 searchInput.addEventListener("input", filterKalams);
 
+
 searchInput.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") hideSuggestions();
+
+    if (event.key === "Escape") {
+
+        hideSuggestions();
+    }
+
 
     if (event.key === "Enter") {
-        const firstSuggestion = searchSuggestion.querySelector(".suggestion-item");
-        if (firstSuggestion && !searchSuggestion.classList.contains("hidden")) {
+
+        const firstSuggestion = searchSuggestion.querySelector(
+            ".suggestion-item"
+        );
+
+        if (
+            firstSuggestion &&
+            !searchSuggestion.classList.contains("hidden")
+        ) {
+
             firstSuggestion.click();
         }
     }
 });
 
+
 document.addEventListener("click", function (event) {
-    if (!event.target.closest(".search-box")) hideSuggestions();
+
+    if (!event.target.closest(".search-box")) {
+
+        hideSuggestions();
+    }
+
 });
 
 
@@ -360,32 +799,59 @@ document.addEventListener("click", function (event) {
 // =====================================
 
 function displayKalams(kalams) {
+
     kalamList.replaceChildren();
+
     kalamCount.textContent = kalams.length + " Kalam";
 
+
     if (!kalams || kalams.length === 0) {
+
         const empty = document.createElement("div");
+
         empty.className = "empty";
+
         empty.textContent = currentLanguage === "urdu"
             ? "اس حرف سے کوئی کلام نہیں ملا۔"
             : "Is letter se koi Kalam nahi mila.";
+
         kalamList.appendChild(empty);
+
         return;
     }
 
+
     kalams.forEach(function (kalam) {
+
         const card = document.createElement("article");
+
         card.className = "kalam-card";
 
-        if (currentLanguage === "urdu") card.classList.add("urdu-card");
+        if (currentLanguage === "urdu") {
+
+            card.classList.add("urdu-card");
+        }
+
 
         const title = document.createElement("h3");
+
         title.textContent = kalam.title || "Untitled Kalam";
+
         title.dir = currentLanguage === "urdu" ? "rtl" : "auto";
 
+
         card.appendChild(title);
-        card.addEventListener("click", () => openKalam(kalam.id));
+
+
+        card.addEventListener("click", function () {
+
+            openKalam(kalam.id);
+
+        });
+
+
         kalamList.appendChild(card);
+
     });
 }
 
@@ -395,116 +861,371 @@ function displayKalams(kalams) {
 // =====================================
 
 function openKalam(id) {
-    const kalam = currentKalams.find(item => String(item.id) === String(id));
+
+    const kalam = currentKalams.find(
+        item => String(item.id) === String(id)
+    );
+
+    if (!kalam) return;
+
+
+    // RESET PREVIOUS KALAM
+
+    readerKalamsByLanguage = {
+        english: null,
+        urdu: null
+    };
+
+
+    // STORE OPENED LANGUAGE VERSION
+
+    readerKalamsByLanguage[currentLanguage] = kalam;
+
+    currentReaderKalam = kalam;
+
+
+    // OPEN READER
+
+    homePage.classList.add("hidden");
+
+    readerPage.classList.remove("hidden");
+
+
+    renderReaderKalam(kalam);
+
+
+    // ALWAYS OPEN FROM THE TOP
+
+    window.scrollTo({
+        top: 0,
+        behavior: "instant"
+    });
+
+    document.documentElement.scrollTop = 0;
+
+    document.body.scrollTop = 0;
+
+    readerPage.scrollTop = 0;
+}
+
+
+// =====================================
+// RENDER READER
+// =====================================
+
+function renderReaderKalam(kalam) {
+
     if (!kalam) return;
 
     currentReaderKalam = kalam;
-    homePage.classList.add("hidden");
-    readerPage.classList.remove("hidden");
-
-    document.getElementById("readerTitle").textContent = kalam.title || "Kalam";
 
     const readerTitle = document.getElementById("readerTitle");
+
     const readerContent = document.getElementById("readerContent");
 
+    const readerActions = document.querySelector(
+        ".reader-action-bar"
+    );
+
+
+    // TITLE
+
+    readerTitle.textContent = kalam.title || "Kalam";
+
+
+    // LANGUAGE DIRECTION
+
     if (currentLanguage === "urdu") {
+
         readerTitle.dir = "rtl";
+
         readerContent.dir = "rtl";
+
         readerContent.classList.add("urdu-reader");
+
     } else {
+
         readerTitle.dir = "auto";
+
         readerContent.dir = "auto";
+
         readerContent.classList.remove("urdu-reader");
     }
 
+
+    // CHECK EMPTY LYRICS
+
+    if (!String(kalam.lyrics || "").trim()) {
+
+        renderUnavailableLanguage(kalam);
+
+        return;
+    }
+
+
+    // SHOW READER ACTIONS
+
+    readerActions.classList.remove("hidden");
+
+
+    // DISPLAY ASHAAR
+
     renderAshaar(kalam.lyrics || "");
+
     updateFontSize();
 }
 
 
 // =====================================
-// RENDER ASHAAR + PERSISTENT HIGHLIGHT
+// LANGUAGE NOT AVAILABLE
+// =====================================
+
+function renderUnavailableLanguage(sourceKalam) {
+
+    const readerTitle = document.getElementById("readerTitle");
+
+    const readerContent = document.getElementById("readerContent");
+
+    const readerActions = document.querySelector(
+        ".reader-action-bar"
+    );
+
+
+    // Do not keep an unrelated or old Kalam active.
+
+    currentReaderKalam = null;
+
+
+    // KEEP THE SOURCE KALAM TITLE
+
+    readerTitle.textContent = sourceKalam?.title || "Kalam";
+
+
+    // SET LANGUAGE DIRECTION
+
+    if (currentLanguage === "urdu") {
+
+        readerTitle.dir = "rtl";
+
+        readerContent.dir = "rtl";
+
+        readerContent.classList.add("urdu-reader");
+
+    } else {
+
+        readerTitle.dir = "auto";
+
+        readerContent.dir = "auto";
+
+        readerContent.classList.remove("urdu-reader");
+    }
+
+
+    // CLEAR OLD LYRICS
+
+    readerContent.replaceChildren();
+
+
+    // SHOW MESSAGE
+
+    const unavailable = document.createElement("p");
+
+    unavailable.className = "empty";
+
+    unavailable.textContent = "No available in this language.";
+
+    readerContent.appendChild(unavailable);
+
+
+    // HIDE COPY AND OTHER ACTIONS
+
+    readerActions.classList.add("hidden");
+}
+
+
+// =====================================
+// RENDER ASHAAR
+// PERSISTENT HIGHLIGHT
 // =====================================
 
 function renderAshaar(lyrics) {
+
     const reader = document.getElementById("readerContent");
+
     reader.replaceChildren();
+
 
     const lines = lyrics
         .split(/\r?\n/)
         .map(line => line.trim())
         .filter(line => line.length > 0);
 
+
     if (lines.length === 0) {
+
         const empty = document.createElement("p");
+
         empty.className = "empty";
-        empty.textContent = currentLanguage === "urdu"
-            ? "اس کلام کے اشعار موجود نہیں ہیں۔"
-            : "Is Kalam mein lyrics nahi hain.";
+
+        empty.textContent = "No available in this language.";
+
         reader.appendChild(empty);
+
         return;
     }
 
-    for (let i = 0, coupletIndex = 0; i < lines.length; i += 2, coupletIndex++) {
+
+    for (
+        let i = 0, coupletIndex = 0;
+        i < lines.length;
+        i += 2, coupletIndex++
+    ) {
+
         const couplet = document.createElement("div");
+
         couplet.className = "couplet";
 
+
         const verse = document.createElement("div");
+
         verse.className = "verse";
+
         verse.textContent = lines.slice(i, i + 2).join("\n");
 
+
         const actions = document.createElement("div");
+
         actions.className = "actions";
 
+
+        // =====================================
+        // COPY BUTTON
+        // =====================================
+
         const copyBtn = createButton("Copy");
+
         copyBtn.addEventListener("click", async function () {
+
             try {
-                await navigator.clipboard.writeText(verse.textContent);
-                showMessage(currentLanguage === "urdu"
-                    ? "اشعار کاپی ہوگئے!"
-                    : "Ashaar copied successfully!");
+
+                await navigator.clipboard.writeText(
+                    verse.textContent
+                );
+
+                showMessage(
+                    currentLanguage === "urdu"
+                        ? "اشعار کاپی ہوگئے!"
+                        : "Ashaar copied successfully!"
+                );
+
             } catch (error) {
+
                 showMessage("Copy nahi ho saka.");
             }
         });
 
-        const highlightBtn = createButton("Highlight");
-        const initiallyHighlighted = isHighlightSaved(currentReaderKalam, coupletIndex);
 
-        couplet.classList.toggle("highlighted", initiallyHighlighted);
-        highlightBtn.classList.toggle("active", initiallyHighlighted);
-        highlightBtn.textContent = initiallyHighlighted ? "Highlighted" : "Highlight";
+        // =====================================
+        // HIGHLIGHT BUTTON
+        // =====================================
+
+        const highlightBtn = createButton("Highlight");
+
+        const initiallyHighlighted = isHighlightSaved(
+            currentReaderKalam,
+            coupletIndex
+        );
+
+
+        couplet.classList.toggle(
+            "highlighted",
+            initiallyHighlighted
+        );
+
+        highlightBtn.classList.toggle(
+            "active",
+            initiallyHighlighted
+        );
+
+        highlightBtn.textContent = initiallyHighlighted
+            ? "Highlighted"
+            : "Highlight";
+
 
         highlightBtn.addEventListener("click", function () {
+
             const active = couplet.classList.toggle("highlighted");
+
             highlightBtn.classList.toggle("active", active);
-            highlightBtn.textContent = active ? "Highlighted" : "Highlight";
-            saveHighlight(currentReaderKalam, coupletIndex, active);
+
+            highlightBtn.textContent = active
+                ? "Highlighted"
+                : "Highlight";
+
+            saveHighlight(
+                currentReaderKalam,
+                coupletIndex,
+                active
+            );
         });
 
+
+        // =====================================
+        // SHARE BUTTON
+        // =====================================
+
         const shareBtn = createButton("Share");
+
         shareBtn.addEventListener("click", async function () {
+
             const text = verse.textContent;
 
             try {
+
                 if (navigator.share) {
+
                     await navigator.share({
+
                         title: "Kalam e ala Hazrat",
+
                         text: text
+
                     });
+
                 } else if (navigator.clipboard) {
+
                     await navigator.clipboard.writeText(text);
-                    showMessage("Ashaar copied. Ab share kar sakte hain.");
+
+                    showMessage(
+                        "Ashaar copied. Ab share kar sakte hain."
+                    );
+
                 } else {
+
                     showMessage("Share feature available nahi hai.");
                 }
+
             } catch (error) {
-                if (error.name !== "AbortError") showMessage("Share nahi ho saka.");
+
+                if (error.name !== "AbortError") {
+
+                    showMessage("Share nahi ho saka.");
+                }
             }
         });
 
-        actions.append(copyBtn, highlightBtn, shareBtn);
-        couplet.append(verse, actions);
+
+        actions.append(
+            copyBtn,
+            highlightBtn,
+            shareBtn
+        );
+
+        couplet.append(
+            verse,
+            actions
+        );
+
         reader.appendChild(couplet);
     }
 }
@@ -515,10 +1236,15 @@ function renderAshaar(lyrics) {
 // =====================================
 
 function createButton(label) {
+
     const button = document.createElement("button");
+
     button.type = "button";
+
     button.className = "action-btn";
+
     button.textContent = label;
+
     return button;
 }
 
@@ -528,20 +1254,39 @@ function createButton(label) {
 // =====================================
 
 copyFullKalam.addEventListener("click", async function () {
-    if (!currentReaderKalam) return;
+
+    if (
+        !currentReaderKalam ||
+        !String(currentReaderKalam.lyrics || "").trim()
+    ) {
+
+        return;
+    }
+
 
     const fullText = [
+
         currentReaderKalam.title || "Kalam",
+
         "",
+
         currentReaderKalam.lyrics || ""
+
     ].join("\n");
 
+
     try {
+
         await navigator.clipboard.writeText(fullText);
-        showMessage(currentLanguage === "urdu"
-            ? "مکمل کلام کاپی ہوگیا!"
-            : "Full Kalam copied successfully!");
+
+        showMessage(
+            currentLanguage === "urdu"
+                ? "مکمل کلام کاپی ہوگیا!"
+                : "Full Kalam copied successfully!"
+        );
+
     } catch (error) {
+
         showMessage("Full Kalam copy nahi ho saka.");
     }
 });
@@ -551,46 +1296,99 @@ copyFullKalam.addEventListener("click", async function () {
 // BACK BUTTON
 // =====================================
 
-document.getElementById("backButton").addEventListener("click", function () {
-    readerPage.classList.add("hidden");
-    homePage.classList.remove("hidden");
-    currentReaderKalam = null;
-});
+document.getElementById("backButton").addEventListener(
+    "click",
+    function () {
+
+        readerPage.classList.add("hidden");
+
+        homePage.classList.remove("hidden");
+
+
+        currentReaderKalam = null;
+
+        readerKalamsByLanguage = {
+            english: null,
+            urdu: null
+        };
+
+
+        searchInput.value = "";
+
+        hideSuggestions();
+
+        filterKalams();
+    }
+);
 
 
 // =====================================
-// FONT SIZE CONTROLS - PLUS / MINUS ONLY
+// FONT SIZE CONTROLS
 // =====================================
 
 let englishFontSize = 21;
+
 let urduFontSize = 24;
 
+
 const fontDecrease = document.getElementById("fontDecrease");
+
 const fontIncrease = document.getElementById("fontIncrease");
 
+
 function updateFontSize() {
-    document.querySelectorAll("#readerContent .verse").forEach(function (verse) {
-        verse.style.fontSize = (currentLanguage === "urdu"
-            ? urduFontSize
-            : englishFontSize) + "px";
-    });
+
+    document.querySelectorAll("#readerContent .verse").forEach(
+        function (verse) {
+
+            verse.style.fontSize = (
+                currentLanguage === "urdu"
+                    ? urduFontSize
+                    : englishFontSize
+            ) + "px";
+        }
+    );
 }
 
+
 fontIncrease.addEventListener("click", function () {
+
     if (currentLanguage === "urdu") {
-        urduFontSize = Math.min(urduFontSize + 2, 42);
+
+        urduFontSize = Math.min(
+            urduFontSize + 2,
+            42
+        );
+
     } else {
-        englishFontSize = Math.min(englishFontSize + 2, 38);
+
+        englishFontSize = Math.min(
+            englishFontSize + 2,
+            38
+        );
     }
+
     updateFontSize();
 });
 
+
 fontDecrease.addEventListener("click", function () {
+
     if (currentLanguage === "urdu") {
-        urduFontSize = Math.max(urduFontSize - 2, 16);
+
+        urduFontSize = Math.max(
+            urduFontSize - 2,
+            16
+        );
+
     } else {
-        englishFontSize = Math.max(englishFontSize - 2, 14);
+
+        englishFontSize = Math.max(
+            englishFontSize - 2,
+            14
+        );
     }
+
     updateFontSize();
 });
 

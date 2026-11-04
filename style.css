@@ -507,3 +507,20 @@ body[data-theme="dark"] .kalam-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,.2
     object-fit: contain;
     display: block;
 }
+/* READER PAGE: HIDE TOP PROFILE AND FILTERS */
+
+body:has(#readerPage:not(.hidden)) .hero,
+body:has(#readerPage:not(.hidden)) .toolbar,
+body:has(#readerPage:not(.hidden)) #englishAlphabet,
+body:has(#readerPage:not(.hidden)) #urduAlphabet {
+    display: none !important;
+}
+
+/* KEEP ONLY LANGUAGE BUTTONS AT THE TOP */
+
+body:has(#readerPage:not(.hidden)) .language-switch {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
