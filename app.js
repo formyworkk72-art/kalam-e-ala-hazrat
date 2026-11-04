@@ -1,13 +1,12 @@
+
 "use strict";
 
 // =====================================
-// KALAM E ALA HAZRAT muhabbat ke sath
-
+// KALAM E ALA HAZRAT
 // ENGLISH + URDU SECTIONS
 // =====================================
 
-// HTML ELEMENTS mera naam abdul hai
-
+// HTML ELEMENTS
 
 const homePage = document.getElementById("homePage");
 const readerPage = document.getElementById("readerPage");
@@ -40,6 +39,7 @@ let currentReaderKalam = null;
 // =====================================
 
 function applyTheme(theme, save = true) {
+
     const selectedTheme = theme === "dark" ? "dark" : "light";
 
     document.body.dataset.theme = selectedTheme;
@@ -51,41 +51,65 @@ function applyTheme(theme, save = true) {
     const isDark = selectedTheme === "dark";
 
     themeToggle.textContent = isDark ? "☀️ Light" : "🌙 Dark";
+
     themeToggle.setAttribute(
         "aria-label",
         isDark ? "Switch to light theme" : "Switch to dark theme"
     );
-    themeToggle.setAttribute("aria-pressed", String(isDark));
-    themeToggle.title = isDark ? "Switch to light theme" : "Switch to dark theme";
 
-    const themeColor = document.querySelector('meta[name="theme-color"]');
+    themeToggle.setAttribute("aria-pressed", String(isDark));
+
+    themeToggle.title = isDark
+        ? "Switch to light theme"
+        : "Switch to dark theme";
+
+    const themeColor = document.querySelector(
+        'meta[name="theme-color"]'
+    );
+
     if (themeColor) {
-        themeColor.setAttribute("content", isDark ? "#111a16" : "#f7f9f6");
+        themeColor.setAttribute(
+            "content",
+            isDark ? "#111a16" : "#f7f9f6"
+        );
     }
 }
 
-// First visit defaults to Light. Old theme values are safely normalized.
+
+// First visit defaults to Light
+
 const storedTheme = localStorage.getItem("kalam-theme");
-const initialTheme = storedTheme === "dark" ? "dark" : "light";
+
+const initialTheme =
+    storedTheme === "dark" ? "dark" : "light";
+
 applyTheme(initialTheme, storedTheme !== initialTheme);
 
+
 themeToggle.addEventListener("click", function () {
+
     const nextTheme =
-        document.body.dataset.theme === "dark" ? "light" : "dark";
+        document.body.dataset.theme === "dark"
+            ? "light"
+            : "dark";
 
     applyTheme(nextTheme);
+
 });
+
 
 // =====================================
 // MESSAGE SYSTEM
 // =====================================
 
 function showMessage(text) {
+
     message.textContent = text;
 
     setTimeout(function () {
         message.textContent = "";
     }, 2500);
+
 }
 
 
@@ -111,11 +135,13 @@ function sortUrduKalams(kalams) {
         const index = alphabet.indexOf(firstLetter);
 
         return index === -1 ? 999 : index;
+
     }
 
     return [...kalams].sort(function (a, b) {
         return getIndex(a.title) - getIndex(b.title);
     });
+
 }
 
 
@@ -184,7 +210,9 @@ async function loadKalams() {
         console.error("SUPABASE ERROR:", error);
 
         kalamList.textContent = "ERROR: " + error.message;
+
     }
+
 }
 
 
@@ -232,6 +260,7 @@ function switchLanguage(language) {
         sectionTitle.textContent = "نعتِ پاک";
 
         setActiveAlphabet(urduAlphabet, "ALL");
+
     }
 
     document.body.classList.toggle(
@@ -242,6 +271,7 @@ function switchLanguage(language) {
     filterKalams();
 
 }
+
 
 englishTab.addEventListener("click", function () {
     switchLanguage("english");
@@ -286,6 +316,7 @@ function normalizeUrduLetter(letter) {
     };
 
     return map[letter] || letter;
+
 }
 
 
@@ -301,7 +332,6 @@ function filterKalams() {
     const filteredKalams = currentKalams.filter(function (kalam) {
 
         const title = (kalam.title || "").trim();
-        const poet = (kalam.poet || "").trim();
         const lyrics = (kalam.lyrics || "").trim();
 
         let matchesSearch;
@@ -310,7 +340,6 @@ function filterKalams() {
 
             matchesSearch =
                 title.toLowerCase().includes(query) ||
-                poet.toLowerCase().includes(query) ||
                 lyrics.toLowerCase().includes(query);
 
         } else {
@@ -319,8 +348,8 @@ function filterKalams() {
 
             matchesSearch =
                 title.includes(urduQuery) ||
-                poet.includes(urduQuery) ||
                 lyrics.includes(urduQuery);
+
         }
 
         let matchesLetter = true;
@@ -341,6 +370,7 @@ function filterKalams() {
                 const selected = normalizeUrduLetter(selectedLetter);
 
                 matchesLetter = firstLetter === selected;
+
             }
 
         }
@@ -370,12 +400,12 @@ function setupAlphabetButtons(container) {
 
             filterKalams();
 
-
         });
 
     });
 
 }
+
 
 setupAlphabetButtons(englishAlphabet);
 setupAlphabetButtons(urduAlphabet);
@@ -383,6 +413,7 @@ setupAlphabetButtons(urduAlphabet);
 
 // =====================================
 // DISPLAY KALAMS
+// POET NAME REMOVED
 // =====================================
 
 function displayKalams(kalams) {
@@ -405,6 +436,7 @@ function displayKalams(kalams) {
         kalamList.appendChild(empty);
 
         return;
+
     }
 
     kalams.forEach(function (kalam) {
@@ -420,14 +452,14 @@ function displayKalams(kalams) {
         const title = document.createElement("h3");
 
         title.textContent = kalam.title || "Untitled Kalam";
-        title.dir = currentLanguage === "urdu" ? "rtl" : "auto";
 
-        const poet = document.createElement("p");
+        title.dir =
+            currentLanguage === "urdu" ? "rtl" : "auto";
 
-        poet.textContent = kalam.poet || "Ala Hazrat";
+        // Only Kalam title is displayed.
+        // Poet name has been removed.
 
         card.appendChild(title);
-        card.appendChild(poet);
 
         card.addEventListener("click", function () {
             openKalam(kalam.id);
@@ -451,6 +483,7 @@ searchInput.addEventListener("input", function () {
 
 // =====================================
 // OPEN KALAM
+// POET NAME REMOVED
 // =====================================
 
 function openKalam(id) {
@@ -470,10 +503,10 @@ function openKalam(id) {
     document.getElementById("readerTitle").textContent =
         kalam.title || "Kalam";
 
-    document.getElementById("readerPoet").textContent =
-        kalam.poet || "Ala Hazrat";
+    // Poet name is no longer displayed.
 
     const readerTitle = document.getElementById("readerTitle");
+
     const readerContent = document.getElementById("readerContent");
 
     if (currentLanguage === "urdu") {
@@ -491,8 +524,8 @@ function openKalam(id) {
     }
 
     renderAshaar(kalam.lyrics || "");
-    updateFontSize();
 
+    updateFontSize();
 
 }
 
@@ -531,6 +564,7 @@ function renderAshaar(lyrics) {
         reader.appendChild(empty);
 
         return;
+
     }
 
     for (let i = 0; i < lines.length; i += 2) {
@@ -614,7 +648,9 @@ function renderAshaar(lyrics) {
 
                     await navigator.clipboard.writeText(text);
 
-                    showMessage("Ashaar copied. Ab share kar sakte hain.");
+                    showMessage(
+                        "Ashaar copied. Ab share kar sakte hain."
+                    );
 
                 } else {
 
@@ -675,19 +711,12 @@ document.getElementById("backButton").addEventListener(
         readerPage.classList.add("hidden");
         homePage.classList.remove("hidden");
 
-    
         currentReaderKalam = null;
-
 
     }
 );
 
 
-// =====================================
-// START WEBSITE
-// =====================================
-
-loadKalams();
 // =====================================
 // FONT SIZE CONTROLLER
 // =====================================
@@ -698,6 +727,7 @@ let urduFontSize = 24;
 const fontDecrease = document.getElementById("fontDecrease");
 const fontIncrease = document.getElementById("fontIncrease");
 const fontReset = document.getElementById("fontReset");
+
 
 function updateFontSize() {
 
@@ -721,6 +751,7 @@ function updateFontSize() {
 
 }
 
+
 fontIncrease.addEventListener("click", function () {
 
     if (currentLanguage === "urdu") {
@@ -737,6 +768,7 @@ fontIncrease.addEventListener("click", function () {
 
 });
 
+
 fontDecrease.addEventListener("click", function () {
 
     if (currentLanguage === "urdu") {
@@ -751,9 +783,8 @@ fontDecrease.addEventListener("click", function () {
 
     updateFontSize();
 
-
-
 });
+
 
 fontReset.addEventListener("click", function () {
 
@@ -763,3 +794,10 @@ fontReset.addEventListener("click", function () {
     updateFontSize();
 
 });
+
+
+// =====================================
+// START WEBSITE
+// =====================================
+
+loadKalams();
