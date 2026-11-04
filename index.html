@@ -7,7 +7,7 @@
 
     <title>Kalam-e-Ala Hazrat</title>
     <meta property="og:site_name" content="Kalam-e-Ala Hazrat">
-    <meta name="theme-color" content="#071b16">
+    <meta name="theme-color" content="#f7f9f6">
 
     <link rel="stylesheet" href="style.css">
 
@@ -16,9 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
-
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Supabase -->
@@ -27,16 +25,13 @@
     <!-- Website JavaScript -->
     <script src="config.js" defer></script>
     <script src="app.js" defer></script>
-
 </head>
 
 <body data-theme="light">
 
     <!-- HEADER -->
     <header class="hero">
-
         <div class="brand-logo">
-
             <div class="brand-gumbad">
                 <img src="gumbad.jpg" alt="Gumbad e Ala Hazrat">
             </div>
@@ -54,11 +49,9 @@
             <div class="brand-poet" dir="rtl">
                 امام احمد رضا خان
             </div>
-
         </div>
 
         <h1>Kalam-E-ALA HAZRAT</h1>
-
     </header>
 
     <!-- MAIN CONTAINER -->
@@ -66,57 +59,39 @@
 
         <!-- LANGUAGE SWITCH -->
         <div class="language-switch">
-
-            <button id="englishTab" class="language-btn active">
-                English
-            </button>
-
-            <button id="urduTab" class="language-btn">
-                اردو
-            </button>
-
+            <button id="englishTab" class="language-btn active">English</button>
+            <button id="urduTab" class="language-btn">اردو</button>
         </div>
 
         <!-- TOOLBAR -->
         <div class="toolbar">
-
             <div class="search-box">
-
                 <span>⌕</span>
-
                 <input
                     type="search"
                     id="searchInput"
                     placeholder="Search Kalam..."
                     autocomplete="off"
                 >
-
-                <div
-                    id="searchsuggestion"
-                    class="search-suggestion hidden">
-                </div>
-
+                <div id="searchsuggestion" class="search-suggestion hidden"></div>
             </div>
 
             <div class="theme-area">
-
-                <label for="themeSelect">Theme</label>
-
-                <select id="themeSelect">
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="emerald">Emerald Green</option>
-                    <option value="royal">Royal Blue</option>
-                    <option value="classic">Classic Cream</option>
-                </select>
-
+                <button
+                    type="button"
+                    id="themeToggle"
+                    class="theme-toggle"
+                    aria-label="Switch to dark theme"
+                    aria-pressed="false"
+                    title="Switch theme"
+                >
+                    🌙 Dark
+                </button>
             </div>
-
         </div>
 
         <!-- ENGLISH ALPHABET -->
         <div id="englishAlphabet" class="alphabet-filter">
-
             <button class="letter-btn active" data-letter="ALL">All</button>
             <button class="letter-btn" data-letter="A">A</button>
             <button class="letter-btn" data-letter="B">B</button>
@@ -144,12 +119,10 @@
             <button class="letter-btn" data-letter="X">X</button>
             <button class="letter-btn" data-letter="Y">Y</button>
             <button class="letter-btn" data-letter="Z">Z</button>
-
         </div>
 
         <!-- URDU ALPHABET -->
         <div id="urduAlphabet" class="alphabet-filter urdu-alphabet hidden" dir="rtl">
-
             <button class="letter-btn active" data-letter="ALL">سب</button>
             <button class="letter-btn" data-letter="ا">ا</button>
             <button class="letter-btn" data-letter="آ">آ</button>
@@ -189,12 +162,10 @@
             <button class="letter-btn" data-letter="ھ">ھ</button>
             <button class="letter-btn" data-letter="ء">ء</button>
             <button class="letter-btn" data-letter="ی">ی</button>
-
         </div>
 
         <!-- KALAM LIST -->
         <section id="homePage">
-
             <div class="section-heading">
                 <h2 id="sectionTitle">NAAT E PAAK</h2>
                 <span id="kalamCount">Loading...</span>
@@ -203,15 +174,11 @@
             <div id="kalamList" class="kalam-grid">
                 <div class="loading">Kalam load ho rahe hain...</div>
             </div>
-
         </section>
 
         <!-- READER PAGE -->
         <section id="readerPage" class="reader-page hidden">
-
-            <button id="backButton" class="back-button">
-                ← Back to Kalam
-            </button>
+            <button id="backButton" class="back-button">← Back to Kalam</button>
 
             <div class="reader-heading">
                 <h2 id="readerTitle"></h2>
@@ -219,31 +186,24 @@
             </div>
 
             <div class="reader-action-bar">
-
-                <button id="copyFullKalam" class="copy-full-btn">
-                    📋 Copy Full Kalam
-                </button>
+                <button id="copyFullKalam" class="copy-full-btn">📋 Copy Full Kalam</button>
 
                 <div class="font-controls">
                     <button id="fontDecrease" class="font-btn">A−</button>
                     <button id="fontReset" class="font-btn">Reset</button>
                     <button id="fontIncrease" class="font-btn">A+</button>
                 </div>
-
             </div>
 
             <div id="readerContent" class="reader-content"></div>
-
         </section>
 
         <div id="message" class="message"></div>
-
     </main>
 
     <!-- FOOTER -->
     <footer>
         <p>Kalam e ala Hazrat</p>
     </footer>
-
 </body>
 </html>

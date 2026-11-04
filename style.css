@@ -1,1004 +1,1682 @@
 /* =====================================
+
    KALAM-E-ALA HAZRAT
+
    RESPONSIVE STYLESHEET
+
 ===================================== */
 
 * {
+
     margin: 0;
+
     padding: 0;
+
     box-sizing: border-box;
+
 }
 
 :root {
+
     --bg: #f7f9f6;
+
     --card: #ffffff;
+
     --text: #183c2d;
+
     --muted: #728176;
+
     --primary: #087447;
+
     --border: #e1e9e2;
+
     --highlight: #fff1a8;
 
     --logo-bg: rgba(255,255,255,0.55);
+
     --logo-primary: #087443;
+
     --logo-gold: #b68a28;
+
     --logo-text: #075b38;
+
     --logo-glass: rgba(255,255,255,0.65);
+
     --logo-shadow: rgba(0,0,0,0.12);
+
 }
 
 /* =====================================
+
    THEMES
+
 ===================================== */
 
 body[data-theme="dark"] {
+
     --bg: #111a16;
+
     --card: #1c2922;
+
     --text: #f0f5ef;
+
     --muted: #b2c0b5;
+
     --primary: #55c994;
+
     --border: #34463b;
+
     --highlight: #66551b;
 
     --logo-bg: rgba(30,30,30,0.55);
+
     --logo-primary: #52c995;
+
     --logo-gold: #e6c36a;
+
     --logo-text: #f5e7bd;
+
     --logo-glass: rgba(255,255,255,0.08);
+
     --logo-shadow: rgba(0,0,0,0.4);
-}
 
-body[data-theme="emerald"] {
-    --bg: #e9f5ed;
-    --card: #ffffff;
-    --text: #075b3c;
-    --muted: #547d68;
-    --primary: #087747;
-    --border: #cce5d5;
-    --highlight: #d0f4b9;
-
-    --logo-bg: rgba(0,50,35,0.55);
-    --logo-primary: #70e0a9;
-    --logo-gold: #f2d17a;
-    --logo-text: #fff1c4;
-    --logo-glass: rgba(255,255,255,0.10);
-    --logo-shadow: rgba(0,0,0,0.3);
-}
-
-body[data-theme="royal"] {
-    --bg: #edf1fa;
-    --card: #ffffff;
-    --text: #172b50;
-    --muted: #667b9e;
-    --primary: #254f91;
-    --border: #d5dff0;
-    --highlight: #dce9ff;
-
-    --logo-bg: rgba(15,35,90,0.45);
-    --logo-primary: #9bbcff;
-    --logo-gold: #f4d477;
-    --logo-text: #f4e9c8;
-    --logo-glass: rgba(255,255,255,0.12);
-    --logo-shadow: rgba(0,0,0,0.3);
-}
-
-body[data-theme="classic"] {
-    --bg: #f4e9d7;
-    --card: #fffaf0;
-    --text: #68472b;
-    --muted: #91785e;
-    --primary: #916337;
-    --border: #e5d3b8;
-    --highlight: #f7df9a;
-
-    --logo-bg: rgba(245,231,198,0.65);
-    --logo-primary: #76502b;
-    --logo-gold: #b58a3d;
-    --logo-text: #684522;
-    --logo-glass: rgba(255,255,255,0.4);
-    --logo-shadow: rgba(80,50,20,0.15);
 }
 
 /* =====================================
+
    BASIC PAGE
+
 ===================================== */
 
 html {
+
     width: 100%;
+
     min-height: 100%;
+
     overflow-x: hidden;
+
     scroll-behavior: auto;
+
+    overflow-anchor: none;
+
 }
 
 body {
+
     width: 100%;
+
     min-height: 100vh;
+
     overflow-x: hidden;
+
+    overflow-anchor: none;
+
     font-family: 'Poppins', sans-serif;
+
     background: var(--bg);
+
     color: var(--text);
-    transition: background .3s, color .3s;
+
+    transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+
 }
 
 button,
+
 input,
+
 select {
+
     font-family: inherit;
+
 }
 
 button {
+
     cursor: pointer;
+
     -webkit-tap-highlight-color: transparent;
+
 }
 
 /* =====================================
+
    HEADER
+
 ===================================== */
 
 .hero {
+
     position: relative;
+
     isolation: isolate;
+
     overflow: hidden;
+
     text-align: center;
+
     margin: 18px;
+
     padding: 25px 18px;
+
     border-radius: 26px;
+
     background: var(--card);
+
     border: 1px solid var(--border);
+
     box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+
 }
 
 .hero::before {
+
     content: "";
+
     position: absolute;
+
     inset: 0;
+
     z-index: -1;
+
     pointer-events: none;
 
     background-image:
+
         repeating-conic-gradient(
+
             from 0deg at 50% 50%,
+
             transparent 0deg 43deg,
+
             var(--logo-gold) 44deg 45deg,
+
             transparent 46deg 90deg
+
         );
 
     background-size: 75px 75px;
+
     opacity: 0.13;
+
 }
 
 .hero > * {
+
     position: relative;
+
     z-index: 1;
+
 }
 
 .hero-image {
+
     width: 155px;
+
     height: 155px;
+
     padding: 9px;
+
     margin: 20px auto;
+
     border-radius: 28px;
+
     background: rgba(255,255,255,0.13);
+
     border: 1px solid var(--primary);
+
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+
     overflow: hidden;
+
 }
 
 .hero-image img {
+
     width: 100%;
+
     height: 100%;
+
     object-fit: cover;
+
     border-radius: 20px;
+
     display: block;
+
 }
 
 .hero h1 {
+
     display: table;
+
     max-width: 100%;
+
     margin: 10px auto 25px;
+
     padding: 12px 35px;
+
     font-family: 'Playfair Display', serif;
+
     font-size: clamp(23px, 6vw, 58px);
+
     font-weight: 700;
+
     color: var(--text);
+
     background: rgba(255,255,255,0.18);
+
     backdrop-filter: blur(12px);
+
     -webkit-backdrop-filter: blur(12px);
+
     border: 1px solid rgba(255,255,255,0.45);
+
     border-radius: 16px;
+
     box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+
     overflow-wrap: anywhere;
+
 }
 
 /* =====================================
+
    BRAND LOGO
+
 ===================================== */
 
 .brand-logo {
+
     position: relative;
+
     isolation: isolate;
+
     overflow: hidden;
+
     width: 96%;
+
     max-width: 850px;
+
     margin: 25px auto;
+
     padding: 30px 35px;
+
     text-align: center;
+
     background: var(--logo-bg);
+
     backdrop-filter: blur(20px);
+
     -webkit-backdrop-filter: blur(20px);
+
     border: 2px solid var(--logo-gold);
+
     border-radius: 28px;
+
     box-shadow:
+
         0 12px 35px var(--logo-shadow),
+
         inset 0 1px 15px var(--logo-glass);
+
 }
 
 .brand-logo::before {
+
     content: "";
+
     position: absolute;
+
     inset: 0;
+
     z-index: -1;
+
     pointer-events: none;
+
     background-image:
+
         repeating-conic-gradient(
+
             from 45deg,
+
             var(--logo-gold) 0deg 1deg,
+
             transparent 1deg 45deg
+
         );
+
     background-size: 55px 55px;
+
     opacity: 0.12;
+
 }
 
 .brand-logo::after {
+
     content: "";
+
     position: absolute;
+
     inset: 10px;
+
     z-index: -1;
+
     pointer-events: none;
+
     border: 1px solid var(--logo-gold);
+
     border-radius: 20px;
+
     opacity: 0.55;
+
 }
 
 .brand-gumbad {
+
     width: 125px;
+
     height: 125px;
+
     margin: 0 auto 18px;
+
     padding: 6px;
+
     border: 2px solid var(--logo-gold);
+
     border-radius: 50%;
+
     background: var(--logo-glass);
+
     box-shadow: 0 0 22px var(--logo-gold);
+
 }
 
 .brand-gumbad img {
+
     width: 100%;
+
     height: 100%;
+
     object-fit: cover;
+
     border-radius: 50%;
+
     display: block;
+
 }
 
 .brand-calligraphy {
+
     font-family: 'Noto Nastaliq Urdu', serif;
+
     font-size: clamp(28px, 6vw, 45px);
+
     font-weight: 700;
+
     color: var(--logo-primary);
+
     text-shadow: 0 2px 8px var(--logo-shadow);
+
     line-height: 2.1;
+
 }
 
 .brand-subtitle {
+
     margin-top: 10px;
+
     font-family: 'Playfair Display', serif;
+
     font-size: 17px;
+
     font-weight: 700;
+
     letter-spacing: 3px;
+
     color: var(--logo-gold);
+
 }
 
 .brand-divider {
+
     width: 65%;
+
     height: 2px;
+
     margin: 18px auto;
+
     background: linear-gradient(
+
         90deg,
+
         transparent,
+
         var(--logo-gold),
+
         transparent
+
     );
+
 }
 
 .brand-poet {
+
     font-family: 'Noto Nastaliq Urdu', serif;
+
     font-size: 21px;
+
     color: var(--logo-text);
+
 }
 
 .side-name {
+
     font-family: 'Noto Nastaliq Urdu', serif;
+
     font-size: 35px;
+
     font-weight: 700;
+
     color: var(--text);
+
     direction: rtl;
+
     white-space: nowrap;
+
     line-height: 2;
+
     text-align: center;
+
 }
 
 /* =====================================
+
    MAIN CONTAINER
+
 ===================================== */
 
 .container {
+
     width: 92%;
+
     max-width: 1100px;
+
     margin: 35px auto;
+
 }
 
 /* =====================================
+
    LANGUAGE SWITCH
+
 ===================================== */
 
 .language-switch {
+
     display: flex;
+
     justify-content: center;
+
     gap: 12px;
+
     margin-bottom: 25px;
+
 }
 
 .language-btn {
+
     min-width: 140px;
+
     padding: 12px 22px;
+
     border: 1px solid var(--primary);
+
     border-radius: 12px;
+
     background: var(--card);
+
     color: var(--text);
+
     font-size: 15px;
+
     font-weight: 600;
+
     transition: background .25s ease, color .25s ease;
+
 }
 
 .language-btn:hover,
+
 .language-btn.active {
+
     background: var(--primary);
+
     color: white;
+
 }
 
 /* =====================================
+
    TOOLBAR AND SEARCH
+
 ===================================== */
 
 .toolbar {
+
     display: flex;
+
     gap: 15px;
+
     align-items: center;
+
     justify-content: space-between;
+
     margin-bottom: 35px;
+
     flex-wrap: wrap;
+
 }
 
 .search-box {
+
     display: flex;
+
     align-items: center;
+
     gap: 12px;
+
     background: var(--card);
+
     border: 1px solid var(--border);
+
     padding: 13px 17px;
+
     border-radius: 12px;
+
     flex: 1;
+
     min-width: 220px;
+
 }
 
 .search-box span {
+
     font-size: 25px;
+
 }
 
 .search-box input {
+
     background: transparent;
+
     border: none;
+
     outline: none;
+
     color: var(--text);
+
     width: 100%;
+
     min-width: 0;
+
     font-size: 16px;
+
 }
 
 .search-suggestion {
+
     position: absolute;
+
     z-index: 10;
+
 }
 
 .theme-area {
+
     display: flex;
+
     align-items: center;
+
     gap: 10px;
+
 }
 
 .theme-area select {
+
     background: var(--card);
+
     border: 1px solid var(--border);
+
     color: var(--text);
+
     padding: 12px;
+
     border-radius: 10px;
+
     outline: none;
+
     font-size: 16px;
+
 }
 
 /* =====================================
+
    ALPHABET FILTER
+
 ===================================== */
 
 .alphabet-filter {
+
     display: flex;
+
     flex-wrap: wrap;
+
     justify-content: center;
+
     gap: 8px;
+
     margin: 20px 0;
+
 }
 
 .letter-btn {
+
     padding: 9px 13px;
+
     border: 1px solid var(--primary);
+
     border-radius: 10px;
+
     background: var(--card);
+
     color: var(--text);
+
     font-weight: bold;
+
     transition: background .2s ease, color .2s ease;
+
 }
 
 .letter-btn:hover,
+
 .letter-btn.active {
+
     background: var(--primary);
+
     color: white;
+
 }
 
 .urdu-alphabet {
+
     direction: rtl;
+
 }
 
 .urdu-alphabet .letter-btn {
+
     font-family: 'Amiri', serif;
+
     font-size: 20px;
+
     min-width: 38px;
+
 }
 
 /* =====================================
+
    KALAM LIST
+
 ===================================== */
 
 .section-heading {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
     margin-bottom: 20px;
+
     gap: 10px;
+
 }
 
 .section-heading h2 {
+
     font-size: 25px;
+
 }
 
-#kalamCount {
+\#kalamCount {
+
     color: var(--muted);
+
     font-size: 13px;
+
 }
 
 .kalam-grid {
+
     display: grid;
+
     grid-template-columns: repeat(2, minmax(0, 1fr));
+
     gap: 15px;
+
 }
 
 .kalam-card {
+
     background: var(--card);
+
     border: 1px solid var(--border);
+
     border-radius: 14px;
+
     padding: 20px;
+
     cursor: pointer;
+
     transition: border-color .25s ease, box-shadow .25s ease;
+
 }
 
 .kalam-card:hover {
+
     border-color: var(--primary);
+
     box-shadow: 0 8px 25px rgba(0,0,0,.07);
+
 }
 
 .kalam-card h3 {
+
     font-family: 'Amiri', serif;
+
     font-size: 25px;
+
     direction: rtl;
+
     text-align: right;
+
     line-height: 1.8;
+
 }
 
 .kalam-card p {
+
     color: var(--muted);
+
     font-size: 12px;
+
     margin-top: 8px;
+
 }
 
 .urdu-card {
+
     direction: rtl;
+
     text-align: right;
+
 }
 
 .urdu-card,
+
 .urdu-card h3 {
+
     font-family: 'Noto Naskh Arabic', serif !important;
+
     font-weight: 500;
+
 }
 
 .urdu-card h3 {
+
     font-size: 25px;
+
     line-height: 2;
+
 }
 
 /* =====================================
+
    READER
+
 ===================================== */
 
 .reader-page {
+
     width: 100%;
+
     max-width: 100%;
+
     background: var(--card);
+
     padding: 25px;
+
     border: 1px solid var(--border);
+
     border-radius: 16px;
+
     overflow-wrap: anywhere;
+
 }
 
 .hidden {
+
     display: none !important;
+
 }
 
 .back-button {
+
     background: var(--primary);
+
     color: white;
+
     border: none;
+
     padding: 11px 18px;
+
     border-radius: 9px;
+
     font-size: 14px;
+
     transition: background .2s ease;
+
 }
 
 .back-button:hover {
+
     opacity: .9;
+
 }
 
 .reader-heading {
+
     text-align: center;
+
     margin: 30px 0;
+
 }
 
 .reader-heading h2 {
+
     font-family: 'Amiri', serif;
+
     font-size: 34px;
+
     line-height: 1.8;
+
 }
 
 .reader-heading p {
+
     color: var(--muted);
+
     margin-top: 5px;
+
 }
 
 .reader-content {
+
     width: 100%;
+
     max-width: 800px;
+
     margin: auto;
+
 }
 
 .urdu-reader {
+
     direction: rtl;
+
     text-align: center;
+
 }
 
 .urdu-reader,
+
 .urdu-reader .verse {
+
     font-family: 'Noto Naskh Arabic', serif !important;
+
 }
 
 .urdu-reader .verse {
+
     font-size: 29px;
+
     line-height: 2.1;
+
 }
 
 /* =====================================
+
    ASHAAR / COUPLETS
+
 ===================================== */
 
 .couplet {
+
     direction: rtl;
+
     text-align: center;
+
     padding: 24px 15px;
+
     margin: 15px 0;
+
     background: var(--bg);
+
     border: 1px solid var(--border);
+
     border-radius: 13px;
+
     transition: background .2s ease;
+
 }
 
 .couplet.highlighted {
+
     background: var(--highlight);
+
     border: 2px solid var(--primary);
+
 }
 
 .verse {
+
     font-family: 'Amiri', serif;
+
     font-size: 27px;
+
     line-height: 2;
+
     white-space: pre-wrap;
+
     overflow-wrap: anywhere;
+
 }
 
 /* =====================================
+
    ASHAAR ACTION BUTTONS
+
 ===================================== */
 
 .actions {
+
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
     gap: 10px;
+
     flex-wrap: wrap;
+
     margin-top: 17px;
+
     direction: ltr;
+
 }
 
 .action-btn {
+
     padding: 9px 15px;
+
     border: 1px solid var(--primary);
+
     background: var(--card);
+
     color: var(--text);
+
     border-radius: 10px;
+
     font-size: 12px;
+
     font-family: 'Poppins', sans-serif;
+
     transition: background .2s ease, color .2s ease;
+
 }
 
 .action-btn:hover,
+
 .action-btn.active {
+
     background: var(--primary);
+
     color: white;
+
 }
 
 /* =====================================
+
    READER ACTION BAR
+
 ===================================== */
 
 .reader-action-bar {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
     gap: 12px;
+
     width: 100%;
+
     margin: 15px 0 25px;
+
     flex-wrap: wrap;
+
 }
 
 .copy-full-btn {
+
     display: block;
+
     margin: 0;
+
     padding: 11px 18px;
+
     background: var(--primary);
+
     color: white;
+
     border: none;
+
     border-radius: 12px;
+
     font-size: 15px;
+
     font-weight: 600;
+
     white-space: nowrap;
+
     transition: opacity .2s ease;
+
 }
 
 .copy-full-btn:hover {
+
     opacity: .9;
+
 }
 
 /* =====================================
+
    FONT SIZE CONTROLS
+
 ===================================== */
 
 .font-controls {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     gap: 7px;
+
     flex-wrap: wrap;
+
     margin: 0;
+
     padding: 0;
+
     background: transparent;
+
     border: none;
+
 }
 
 .font-controls span {
+
     color: var(--text);
+
     font-weight: 600;
+
 }
 
 .font-btn {
+
     padding: 9px 12px;
+
     border: 1px solid var(--primary);
+
     border-radius: 10px;
+
     background: var(--card);
+
     color: var(--text);
+
     font-size: 16px;
+
     font-weight: 600;
+
     transition: background .2s ease, color .2s ease;
+
 }
 
 .font-btn:hover {
+
     background: var(--primary);
+
     color: white;
+
 }
 
 /* =====================================
+
    LOADING / EMPTY / MESSAGE
+
 ===================================== */
 
 .loading,
+
 .empty {
+
     padding: 40px;
+
     text-align: center;
+
     color: var(--muted);
+
 }
 
 .message {
+
     text-align: center;
+
     margin: 15px;
+
     color: var(--primary);
+
     font-size: 14px;
+
 }
 
 /* =====================================
+
    FOOTER
+
 ===================================== */
 
 footer {
+
     text-align: center;
+
     padding: 25px;
+
     border-top: 1px solid var(--border);
+
     color: var(--muted);
+
 }
 
 /* =====================================
+
    BUTTON FOCUS
+
 ===================================== */
 
 button:focus-visible {
+
     outline: 2px solid var(--primary);
+
     outline-offset: 3px;
+
 }
 
 button:active {
+
     opacity: .85;
+
 }
 
 /* =====================================
-   PAGE TRANSITION
-   No movement or zoom effect
+   STABLE CLICK / NO LAYOUT MOVEMENT
 ===================================== */
 
-.page-transition {
-    animation: pageFade .2s ease both;
-}
-
-@keyframes pageFade {
-    from {
-        opacity: 0.75;
-    }
-
-    to {
-        opacity: 1;
-    }
+/* Click effects must not move or resize page elements. */
+button,
+a,
+.kalam-card,
+input,
+select {
+    transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
+
     *::before,
+
     *::after {
+
         animation-duration: 0.01ms !important;
+
         transition-duration: 0.01ms !important;
+
     }
+
 }
 
 /* =====================================
+
    MOBILE RESPONSIVE
+
 ===================================== */
 
 @media screen and (max-width: 650px) {
 
     .hero {
+
         margin: 8px;
+
         padding: 15px 10px 20px;
+
         border-radius: 20px;
+
     }
 
     .brand-logo {
+
         width: 100%;
+
         padding: 20px 10px;
+
         margin: 10px auto;
+
         border-radius: 22px;
+
     }
 
     .brand-gumbad {
+
         width: 105px;
+
         height: 105px;
+
     }
 
     .brand-calligraphy {
+
         font-size: clamp(25px, 7vw, 35px);
+
         overflow-wrap: anywhere;
+
     }
 
     .brand-subtitle {
+
         font-size: 13px;
+
         letter-spacing: 2px;
+
     }
 
     .brand-poet {
+
         font-size: 18px;
+
     }
 
     .hero h1 {
+
         padding: 10px 15px;
+
         font-size: clamp(21px, 6vw, 30px);
+
     }
 
     .container {
+
         width: 94%;
+
         margin: 18px auto;
+
     }
 
     .toolbar {
+
         align-items: stretch;
+
         width: 100%;
+
         gap: 12px;
+
     }
 
     .search-box {
+
         width: 100%;
+
         min-width: 0;
+
     }
 
     .theme-area {
+
         width: 100%;
+
         justify-content: space-between;
+
     }
 
     .kalam-grid {
+
         grid-template-columns: 1fr;
+
     }
 
     .kalam-card {
+
         padding: 17px;
+
     }
 
     .reader-page {
+
         width: 100%;
+
         padding: 12px;
+
     }
 
     .reader-heading {
+
         margin: 22px 0;
+
     }
 
     .reader-heading h2 {
+
         font-size: 26px;
+
     }
 
     .reader-action-bar {
+
         gap: 8px;
+
         justify-content: center;
+
     }
 
     .copy-full-btn {
+
         padding: 9px 10px;
+
         font-size: 12px;
+
     }
 
     .font-controls {
+
         gap: 8px;
+
     }
 
     .font-btn {
+
         padding: 8px 9px;
+
         font-size: 13px;
+
     }
 
     .verse {
+
         font-size: 23px;
+
         overflow-wrap: anywhere;
+
     }
 
     .urdu-reader .verse {
+
         font-size: 25px;
+
     }
 
     .couplet {
+
         padding: 15px 8px;
+
     }
 
     .action-btn {
+
         padding: 9px 12px;
+
     }
 
     .language-switch {
+
         gap: 8px;
+
     }
 
     .language-btn {
+
         min-width: 0;
+
         flex: 1;
+
         padding: 11px;
+
     }
 
     .urdu-alphabet .letter-btn {
+
         min-width: 34px;
+
         padding: 8px 10px;
+
     }
 
     .section-heading h2 {
+
         font-size: 21px;
+
     }
 
     .side-name {
+
         font-size: 28px;
+
         white-space: normal;
+
     }
+
 }
 
 /* =====================================
+
    SMALL MOBILE
+
 ===================================== */
 
 @media screen and (max-width: 380px) {
 
     .brand-subtitle {
+
         font-size: 11px;
+
         letter-spacing: 1px;
+
     }
 
     .hero h1 {
+
         font-size: 21px;
+
     }
 
     .reader-page {
+
         padding: 10px;
+
     }
 
     .reader-heading h2 {
+
         font-size: 23px;
+
     }
 
     .verse {
+
         font-size: 21px;
+
     }
 
     .urdu-reader .verse {
+
         font-size: 23px;
+
     }
 
     .actions {
+
         gap: 6px;
+
     }
 
     .action-btn {
+
         padding: 8px 9px;
+
         font-size: 11px;
+
     }
+
 }
 
 /* =====================================
+
    LAPTOP AND DESKTOP
+
 ===================================== */
 
 @media screen and (min-width: 651px) {
 
     .container {
+
         width: 92%;
+
         max-width: 1100px;
+
     }
 
     .kalam-grid {
+
         grid-template-columns: repeat(2, minmax(0, 1fr));
+
     }
+
+}
+
+/* =====================================
+   LIGHT / DARK THEME FINISHING
+===================================== */
+
+body,
+.hero,
+.brand-logo,
+.kalam-card,
+.reader-page,
+.couplet,
+.search-box,
+.theme-area,
+.language-btn,
+.letter-btn,
+.action-btn,
+.font-btn,
+.back-button,
+.copy-full-btn,
+footer {
+    transition:
+        background-color .25s ease,
+        color .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+input,
+select {
+    color: var(--text);
+}
+
+input::placeholder {
+    color: var(--muted);
+    opacity: .85;
+}
+
+select,
+option {
+    background-color: var(--card);
+    color: var(--text);
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 112px;
+    padding: 11px 15px;
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.theme-toggle:hover {
+    filter: brightness(.95);
+}
+
+body[data-theme="dark"] .hero,
+body[data-theme="dark"] .brand-logo {
+    box-shadow: 0 12px 35px rgba(0,0,0,.28);
+}
+
+body[data-theme="dark"] .kalam-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,.25);
+}
+
+@media screen and (max-width: 650px) {
+    .theme-area {
+        justify-content: flex-end;
+    }
+
+    .theme-toggle {
+        width: 100%;
+    }
+}
+
+
+body {
+    color-scheme: light;
+}
+
+body[data-theme="dark"] {
+    color-scheme: dark;
 }

@@ -14,7 +14,7 @@ const readerPage = document.getElementById("readerPage");
 const kalamList = document.getElementById("kalamList");
 
 const searchInput = document.getElementById("searchInput");
-const themeSelect = document.getElementById("themeSelect");
+const themeToggle = document.getElementById("themeToggle");
 const message = document.getElementById("message");
 
 const englishTab = document.getElementById("englishTab");
@@ -36,36 +36,45 @@ let currentReaderKalam = null;
 
 
 // =====================================
-// SMOOTH PAGE TRANSITION
+// LIGHT / DARK THEME SYSTEM
 // =====================================
 
-function animatePageTransition(element) {
-    if (!element) return;
+function applyTheme(theme, save = true) {
+    const selectedTheme = theme === "dark" ? "dark" : "light";
 
-    element.classList.remove("page-transition");
+    document.body.dataset.theme = selectedTheme;
 
-    void element.offsetWidth;
+    if (save) {
+        localStorage.setItem("kalam-theme", selectedTheme);
+    }
 
-    element.classList.add("page-transition");
+    const isDark = selectedTheme === "dark";
+
+    themeToggle.textContent = isDark ? "☀️ Light" : "🌙 Dark";
+    themeToggle.setAttribute(
+        "aria-label",
+        isDark ? "Switch to light theme" : "Switch to dark theme"
+    );
+    themeToggle.setAttribute("aria-pressed", String(isDark));
+    themeToggle.title = isDark ? "Switch to light theme" : "Switch to dark theme";
+
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) {
+        themeColor.setAttribute("content", isDark ? "#111a16" : "#f7f9f6");
+    }
 }
 
+// First visit defaults to Light. Old theme values are safely normalized.
+const storedTheme = localStorage.getItem("kalam-theme");
+const initialTheme = storedTheme === "dark" ? "dark" : "light";
+applyTheme(initialTheme, storedTheme !== initialTheme);
 
-// =====================================
-// THEME SYSTEM
-// =====================================
+themeToggle.addEventListener("click", function () {
+    const nextTheme =
+        document.body.dataset.theme === "dark" ? "light" : "dark";
 
-const savedTheme = localStorage.getItem("kalam-theme") || "light";
-
-document.body.dataset.theme = savedTheme;
-themeSelect.value = savedTheme;
-
-themeSelect.addEventListener("change", function () {
-    const theme = themeSelect.value;
-
-    document.body.dataset.theme = theme;
-    localStorage.setItem("kalam-theme", theme);
+    applyTheme(nextTheme);
 });
-
 
 // =====================================
 // MESSAGE SYSTEM
@@ -232,7 +241,6 @@ function switchLanguage(language) {
 
     filterKalams();
 
-    animatePageTransition(homePage);
 }
 
 englishTab.addEventListener("click", function () {
@@ -362,7 +370,6 @@ function setupAlphabetButtons(container) {
 
             filterKalams();
 
-            animatePageTransition(kalamList);
 
         });
 
@@ -459,7 +466,6 @@ function openKalam(id) {
     homePage.classList.add("hidden");
     readerPage.classList.remove("hidden");
 
-    animatePageTransition(readerPage);
 
     document.getElementById("readerTitle").textContent =
         kalam.title || "Kalam";
@@ -487,11 +493,6 @@ function openKalam(id) {
     renderAshaar(kalam.lyrics || "");
     updateFontSize();
 
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
 
 }
 
@@ -674,14 +675,9 @@ document.getElementById("backButton").addEventListener(
         readerPage.classList.add("hidden");
         homePage.classList.remove("hidden");
 
-        animatePageTransition(homePage);
-
+    
         currentReaderKalam = null;
 
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
 
     }
 );
