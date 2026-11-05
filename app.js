@@ -3,7 +3,7 @@
 
 // =====================================
 // KALAM E ALA HAZRAT
-// ENGLISH + URDU
+// ENGLISH + URDU + FAVOURITES
 // =====================================
 
 const homePage = document.getElementById("homePage");
@@ -24,6 +24,12 @@ const sectionTitle = document.getElementById("sectionTitle");
 const kalamCount = document.getElementById("kalamCount");
 const copyFullKalam = document.getElementById("copyFullKalam");
 
+// FAVOURITE ELEMENTS
+
+const favoritesToggle = document.getElementById("favoritesToggle");
+const readerFavoriteBtn = document.getElementById("readerFavoriteBtn");
+
+
 let englishKalams = [];
 let urduKalams = [];
 
@@ -32,13 +38,19 @@ let selectedLetter = "ALL";
 let currentKalams = [];
 let currentReaderKalam = null;
 
+let showingFavorites = false;
+
+
 // Stores the English and Urdu versions of the currently open Kalam.
+
 let readerKalamsByLanguage = {
     english: null,
     urdu: null
 };
 
+
 const HIGHLIGHT_STORAGE_KEY = "kalam-saved-highlights";
+const FAVORITE_STORAGE_KEY = "kalam-favorite-list";
 
 
 // =====================================
@@ -209,77 +221,6 @@ function sortUrduKalams(kalams) {
 
 
 // =====================================
-// SUPABASE
-// =====================================
-
-async function loadKalams() {
-
-    try {
-
-        kalamList.textContent = "Kalam load ho rahe hain...";
-
-        if (!window.supabase) {
-
-            throw new Error("Supabase library load nahi hui.");
-        }
-
-        if (
-            typeof SUPABASE_URL === "undefined" ||
-            typeof SUPABASE_ANON_KEY === "undefined" ||
-            typeof supabaseClient === "undefined"
-        ) {
-
-            throw new Error("config.js check karein.");
-        }
-
-        // LOAD ENGLISH KALAMS
-
-        const englishResult = await supabaseClient
-            .from("kalaam")
-            .select("*")
-            .order("id", { ascending: true });
-
-        if (englishResult.error) {
-
-            throw new Error(
-                "English table error: " + englishResult.error.message
-            );
-        }
-
-        englishKalams = englishResult.data || [];
-
-
-        // LOAD URDU KALAMS
-
-        const urduResult = await supabaseClient
-            .from("kalaam_urdu")
-            .select("*")
-            .order("id", { ascending: true });
-
-        if (urduResult.error) {
-
-            throw new Error(
-                "Urdu table error: " + urduResult.error.message
-            );
-        }
-
-        urduKalams = sortUrduKalams(urduResult.data || []);
-
-        console.log("English Kalam:", englishKalams);
-        console.log("Urdu Kalam:", urduKalams);
-
-        filterKalams();
-
-    } catch (error) {
-
-        console.error("SUPABASE ERROR:", error);
-
-        kalamList.textContent = "ERROR: " + error.message;
-    }
-}
-
-
-// =====================================
 // FIND SAME KALAM IN OTHER LANGUAGE
 // ONLY USE VERIFIED RELATIONSHIPS
 // NO UNRELATED KALAM
@@ -398,6 +339,312 @@ function findLanguageVersion(sourceKalam, targetLanguage) {
     // Different Kalams can have the same ID in separate tables.
 
     return null;
+}
+
+
+// =====================================
+// FAVOURITE STORAGE
+// =====================================
+
+function getSavedFavorites() {
+
+    try {
+
+        const saved = JSON.parse(
+            localStorage.getItem(FAVORITE_STORAGE_KEY) || "[]"
+        );
+
+        return Array.isArray(saved) ? saved : [];
+
+    } catch (error) {
+
+        console.warn("Favourite data could not be read:", error);
+
+        return [];
+    }
+}
+
+
+// =====================================
+// GET FAVOURITE KEY
+// ENGLISH + URDU LINK SYNC
+// =====================================
+
+function getFavoriteKey(kalam, language = currentLanguage) {
+
+    if (!kalam) return null;
+
+    const otherLanguage = language === "english"
+        ? "urdu"
+        : "english";
+
+    const linkedKalam = findLanguageVersion(
+        kalam,
+        otherLanguage
+    );
+
+
+    // If a verified translation exists,
+    // both versions use the same favourite key.
+
+    if (linkedKalam) {
+
+        const englishId = language === "english"
+            ? kalam.id
+            : linkedKalam.id;
+
+        const urduId = language === "urdu"
+            ? kalam.id
+            : linkedKalam.id;
+
+        return `paired:${String(englishId)}:${String(urduId)}`;
+    }
+
+
+    // If no verified translation exists,
+    // save the favourite separately.
+
+    return `${language}:${String(kalam.id)}`;
+}
+
+
+// =====================================
+// CHECK FAVOURITE
+// =====================================
+
+function isFavorite(kalam, language = currentLanguage) {
+
+    const key = getFavoriteKey(kalam, language);
+
+    if (!key) return false;
+
+    return getSavedFavorites().includes(key);
+}
+
+
+// =====================================
+// UPDATE FAVOURITE BUTTON
+// =====================================
+
+function updateFavoriteButton(button, active) {
+
+    if (!button) return;
+
+    button.classList.toggle("active", active);
+
+    button.textContent = active
+        ? "♥ Favourite"
+        : "♡ Favourite";
+
+    button.setAttribute(
+        "aria-pressed",
+        String(active)
+    );
+}
+
+
+// =====================================
+// TOGGLE FAVOURITE
+// =====================================
+
+function toggleFavorite(kalam, language = currentLanguage) {
+
+    if (!kalam) return;
+
+    const key = getFavoriteKey(kalam, language);
+
+    if (!key) return;
+
+    const favorites = getSavedFavorites();
+
+    const alreadySaved = favorites.includes(key);
+
+    let updatedFavorites;
+
+    if (alreadySaved) {
+
+        updatedFavorites = favorites.filter(
+            item => item !== key
+        );
+
+    } else {
+
+        updatedFavorites = [...favorites, key];
+    }
+
+
+    try {
+
+        localStorage.setItem(
+            FAVORITE_STORAGE_KEY,
+            JSON.stringify(updatedFavorites)
+        );
+
+    } catch (error) {
+
+        showMessage("Favourite save nahi ho saka. Browser storage check karein.");
+
+        return;
+    }
+
+
+    // Update reader button.
+
+    if (
+        currentReaderKalam &&
+        readerFavoriteBtn
+    ) {
+
+        updateFavoriteButton(
+            readerFavoriteBtn,
+            isFavorite(currentReaderKalam)
+        );
+    }
+
+
+    // Update home page list immediately.
+
+    filterKalams();
+
+
+    showMessage(
+        alreadySaved
+            ? "Favourite se remove kar diya gaya."
+            : "Favourite mein save kar diya gaya."
+    );
+}
+
+
+// =====================================
+// FAVOURITE BUTTON EVENTS
+// =====================================
+
+if (favoritesToggle) {
+
+    favoritesToggle.addEventListener("click", function () {
+
+        showingFavorites = !showingFavorites;
+
+        favoritesToggle.classList.toggle(
+            "active",
+            showingFavorites
+        );
+
+        favoritesToggle.textContent = showingFavorites
+            ? "← All Kalam"
+            : "❤️ Favourite";
+
+        favoritesToggle.setAttribute(
+            "aria-pressed",
+            String(showingFavorites)
+        );
+
+
+        // Reset search and alphabet when changing view.
+
+        searchInput.value = "";
+
+        selectedLetter = "ALL";
+
+        hideSuggestions();
+
+
+        if (currentLanguage === "english") {
+
+            setActiveAlphabet(englishAlphabet, "ALL");
+
+        } else {
+
+            setActiveAlphabet(urduAlphabet, "ALL");
+        }
+
+
+        filterKalams();
+
+    });
+}
+
+
+if (readerFavoriteBtn) {
+
+    readerFavoriteBtn.addEventListener("click", function () {
+
+        if (!currentReaderKalam) return;
+
+        toggleFavorite(currentReaderKalam);
+
+    });
+}
+
+
+// =====================================
+// SUPABASE
+// =====================================
+
+async function loadKalams() {
+
+    try {
+
+        kalamList.textContent = "Kalam load ho rahe hain...";
+
+        if (!window.supabase) {
+
+            throw new Error("Supabase library load nahi hui.");
+        }
+
+        if (
+            typeof SUPABASE_URL === "undefined" ||
+            typeof SUPABASE_ANON_KEY === "undefined" ||
+            typeof supabaseClient === "undefined"
+        ) {
+
+            throw new Error("config.js check karein.");
+        }
+
+        // LOAD ENGLISH KALAMS
+
+        const englishResult = await supabaseClient
+            .from("kalaam")
+            .select("*")
+            .order("id", { ascending: true });
+
+        if (englishResult.error) {
+
+            throw new Error(
+                "English table error: " + englishResult.error.message
+            );
+        }
+
+        englishKalams = englishResult.data || [];
+
+
+        // LOAD URDU KALAMS
+
+        const urduResult = await supabaseClient
+            .from("kalaam_urdu")
+            .select("*")
+            .order("id", { ascending: true });
+
+        if (urduResult.error) {
+
+            throw new Error(
+                "Urdu table error: " + urduResult.error.message
+            );
+        }
+
+        urduKalams = sortUrduKalams(urduResult.data || []);
+
+        console.log("English Kalam:", englishKalams);
+        console.log("Urdu Kalam:", urduKalams);
+
+        filterKalams();
+
+    } catch (error) {
+
+        console.error("SUPABASE ERROR:", error);
+
+        kalamList.textContent = "ERROR: " + error.message;
+    }
 }
 
 
@@ -663,7 +910,18 @@ function filterKalams() {
                 }
             }
 
-            return matchesSearch && matchesLetter;
+
+            // FAVOURITE FILTER
+
+            const matchesFavorite = !showingFavorites ||
+                isFavorite(kalam);
+
+
+            return (
+                matchesSearch &&
+                matchesLetter &&
+                matchesFavorite
+            );
         }
     );
 
@@ -695,6 +953,13 @@ function renderSuggestions(query) {
 
 
     const matches = currentKalams.filter(function (kalam) {
+
+        // In Favourite view, suggestions also show favourites only.
+
+        if (showingFavorites && !isFavorite(kalam)) {
+
+            return false;
+        }
 
         const title = (kalam.title || "").trim();
 
@@ -795,7 +1060,7 @@ document.addEventListener("click", function (event) {
 
 
 // =====================================
-// DISPLAY KALAMS - NO POET NAME
+// DISPLAY KALAMS - WITH FAVOURITE BUTTON
 // =====================================
 
 function displayKalams(kalams) {
@@ -811,9 +1076,19 @@ function displayKalams(kalams) {
 
         empty.className = "empty";
 
-        empty.textContent = currentLanguage === "urdu"
-            ? "اس حرف سے کوئی کلام نہیں ملا۔"
-            : "Is letter se koi Kalam nahi mila.";
+        empty.textContent = showingFavorites
+
+            ? (
+                currentLanguage === "urdu"
+                    ? "ابھی کوئی پسندیدہ کلام محفوظ نہیں ہے۔"
+                    : "No favourite Kalam saved yet."
+            )
+
+            : (
+                currentLanguage === "urdu"
+                    ? "اس حرف سے کوئی کلام نہیں ملا۔"
+                    : "Is letter se koi Kalam nahi mila."
+            );
 
         kalamList.appendChild(empty);
 
@@ -833,6 +1108,13 @@ function displayKalams(kalams) {
         }
 
 
+        // TITLE ROW
+
+        const titleRow = document.createElement("div");
+
+        titleRow.className = "kalam-card-title-row";
+
+
         const title = document.createElement("h3");
 
         title.textContent = kalam.title || "Untitled Kalam";
@@ -840,7 +1122,52 @@ function displayKalams(kalams) {
         title.dir = currentLanguage === "urdu" ? "rtl" : "auto";
 
 
-        card.appendChild(title);
+        // SMALL FAVOURITE HEART BUTTON
+
+        const favoriteBtn = document.createElement("button");
+
+        favoriteBtn.type = "button";
+
+        favoriteBtn.className = "card-favorite-btn";
+
+        favoriteBtn.textContent = isFavorite(kalam) ? "♥" : "♡";
+
+        favoriteBtn.classList.toggle(
+            "active",
+            isFavorite(kalam)
+        );
+
+        favoriteBtn.setAttribute(
+            "aria-label",
+            isFavorite(kalam)
+                ? "Remove from favourites"
+                : "Add to favourites"
+        );
+
+        favoriteBtn.setAttribute(
+            "aria-pressed",
+            String(isFavorite(kalam))
+        );
+
+
+        favoriteBtn.addEventListener("click", function (event) {
+
+            // Do not open the reader when heart is clicked.
+
+            event.stopPropagation();
+
+            toggleFavorite(kalam);
+
+        });
+
+
+        titleRow.append(
+            title,
+            favoriteBtn
+        );
+
+
+        card.appendChild(titleRow);
 
 
         card.addEventListener("click", function () {
@@ -933,6 +1260,19 @@ function renderReaderKalam(kalam) {
     readerTitle.textContent = kalam.title || "Kalam";
 
 
+    // UPDATE READER FAVOURITE BUTTON
+
+    if (readerFavoriteBtn) {
+
+        readerFavoriteBtn.classList.remove("hidden");
+
+        updateFavoriteButton(
+            readerFavoriteBtn,
+            isFavorite(kalam)
+        );
+    }
+
+
     // LANGUAGE DIRECTION
 
     if (currentLanguage === "urdu") {
@@ -994,6 +1334,14 @@ function renderUnavailableLanguage(sourceKalam) {
     // Do not keep an unrelated or old Kalam active.
 
     currentReaderKalam = null;
+
+
+    // HIDE READER FAVOURITE BUTTON
+
+    if (readerFavoriteBtn) {
+
+        readerFavoriteBtn.classList.add("hidden");
+    }
 
 
     // KEEP THE SOURCE KALAM TITLE
@@ -1311,6 +1659,12 @@ document.getElementById("backButton").addEventListener(
             english: null,
             urdu: null
         };
+
+
+        if (readerFavoriteBtn) {
+
+            readerFavoriteBtn.classList.add("hidden");
+        }
 
 
         searchInput.value = "";

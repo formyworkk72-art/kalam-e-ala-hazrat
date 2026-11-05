@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +27,7 @@
     <!-- CANONICAL URL -->
     <link rel="canonical" href="https://formyworkk72-art.github.io/kalam-e-ala-hazrat/">
 
-    <!-- OPEN GRAPH / FACEBOOK -->
+    <!-- OPEN GRAPH -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Kalam-e-Ala Hazrat | Urdu Naat Lyrics">
     <meta property="og:description" content="Explore Urdu, Hindi and English Naats, Islamic Kalam and poetry of Imam Ahmad Raza Khan Barelvi.">
@@ -60,7 +61,7 @@
     <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- WEBSITE JAVASCRIPT -->
+    <!-- JAVASCRIPT -->
     <script src="config.js" defer></script>
     <script src="app.js" defer></script>
 
@@ -249,7 +250,20 @@
 
                 <h2 id="sectionTitle">NAAT E PAAK</h2>
 
-                <span id="kalamCount">Loading...</span>
+                <div class="heading-actions">
+
+                    <button
+                        id="favoritesToggle"
+                        class="favorites-toggle"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        ❤️ Favourite
+                    </button>
+
+                    <span id="kalamCount">Loading...</span>
+
+                </div>
 
             </div>
 
@@ -275,6 +289,15 @@
             <div class="reader-heading">
 
                 <h2 id="readerTitle"></h2>
+
+                <button
+                    id="readerFavoriteBtn"
+                    class="reader-favorite-btn"
+                    type="button"
+                    aria-pressed="false"
+                >
+                    ♡ Favourite
+                </button>
 
             </div>
 
