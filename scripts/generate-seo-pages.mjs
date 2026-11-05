@@ -4,11 +4,16 @@ import path from "node:path";
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error("SUPABASE_URL ya SUPABASE_ANON_KEY missing hai.");
-}
+const SITE_URL =
+  "https://formyworkk72-art.github.io/kalam-e-ala-hazrat";
 
 const OUTPUT_DIR = "seo-kalam";
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error(
+    "SUPABASE_URL ya SUPABASE_ANON_KEY missing hai."
+  );
+}
 
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>"']/g, char => ({
@@ -38,7 +43,10 @@ async function getAllKalams(table) {
   const pageSize = 1000;
 
   while (true) {
-    const url = new URL(`${SUPABASE_URL}/rest/v1/${table}`);
+    const url = new URL(
+      `${SUPABASE_URL}/rest/v1/${table}`
+    );
+
     url.searchParams.set("select", "id,title,lyrics");
     url.searchParams.set("order", "id.asc");
 
@@ -51,13 +59,17 @@ async function getAllKalams(table) {
     });
 
     if (!response.ok) {
-      throw new Error(`${table} table error: ${await response.text()}`);
+      throw new Error(
+        `${table} table error: ${await response.text()}`
+      );
     }
 
     const rows = await response.json();
+
     all.push(...rows);
 
     if (rows.length < pageSize) break;
+
     start += pageSize;
   }
 
@@ -67,29 +79,46 @@ async function getAllKalams(table) {
 function createPage(kalam, language) {
   const title = String(kalam.title || "Kalam");
   const lyrics = String(kalam.lyrics || "");
+
   const slug = makeSlug(title, kalam.id);
-  const folder = path.join(OUTPUT_DIR, language, slug);
-  const pageUrl = `https://formyworkk72-art.github.io/kalam-e-ala-hazrat/${OUTPUT_DIR}/${language}/${slug}/`;
+
+  const folder = path.join(
+    OUTPUT_DIR,
+    language,
+    slug
+  );
+
+  const pageUrl =
+    `${SITE_URL}/${OUTPUT_DIR}/${language}/${encodeURIComponent(slug)}/`;
 
   fs.mkdirSync(folder, { recursive: true });
 
   const isUrdu = language === "urdu";
+
   const safeTitle = escapeHtml(title);
-  const safeLyrics = escapeHtml(lyrics).replace(/\r?\n/g, "<br>\n");
+
+  const safeLyrics = escapeHtml(lyrics)
+    .replace(/\r?\n/g, "<br>\n");
 
   const html = `<!DOCTYPE html>
 <html lang="${isUrdu ? "ur" : "en"}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>${safeTitle} | Kalam-e-Ala Hazrat</title>
+
   <meta name="description" content="${escapeHtml(title)} — Kalam-e-Ala Hazrat. Read the complete Kalam online.">
+
   <meta name="robots" content="index, follow">
+
   <link rel="canonical" href="${pageUrl}">
+
   <meta property="og:title" content="${safeTitle} | Kalam-e-Ala Hazrat">
   <meta property="og:description" content="Read ${safeTitle} online.">
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:type" content="article">
+
   <style>
     body {
       margin: 0;
@@ -99,6 +128,7 @@ function createPage(kalam, language) {
       font-family: Georgia, serif;
       line-height: 2;
     }
+
     main {
       max-width: 760px;
       margin: 30px auto;
@@ -107,10 +137,12 @@ function createPage(kalam, language) {
       border-radius: 14px;
       box-shadow: 0 4px 20px #183c2d12;
     }
+
     h1 {
       text-align: center;
       line-height: 1.6;
     }
+
     .lyrics {
       white-space: normal;
       font-size: 21px;
@@ -118,52 +150,101 @@ function createPage(kalam, language) {
       direction: ${isUrdu ? "rtl" : "auto"};
       line-height: 2.2;
     }
-    a { color: #087447; }
+
+    a {
+      color: #087447;
+    }
   </style>
 </head>
+
 <body>
   <main>
-    <p><a href="/kalam-e-ala-hazrat/">Kalam-e-Ala Hazrat — Home</a></p>
+    <p>
+      <a href="${SITE_URL}/">
+        Kalam-e-Ala Hazrat — Home
+      </a>
+    </p>
+
     <h1>${safeTitle}</h1>
+
     <div class="lyrics">${safeLyrics}</div>
+
     <hr>
-    <p><a href="/kalam-e-ala-hazrat/">Visit Kalam-e-Ala Hazrat website</a></p>
+
+    <p>
+      <a href="${SITE_URL}/">
+        Visit Kalam-e-Ala Hazrat website
+      </a>
+    </p>
   </main>
 </body>
 </html>`;
 
-  fs.writeFileSync(path.join(folder, "index.html"), html, "utf8");
+  fs.writeFileSync(
+    path.join(folder, "index.html"),
+    html,
+    "utf8"
+  );
+
   return pageUrl;
 }
 
+function createSitemap(urls) {
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(url => `  <url><loc>${escapeHtml(url)}</loc></url>`).join("\n")}
+</urlset>`;
+
+  fs.writeFileSync("sitemap.xml", sitemap, "utf8");
+}
+
 async function main() {
-  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
+  fs.rmSync(OUTPUT_DIR, {
+    recursive: true,
+    force: true
+  });
 
   const [english, urdu] = await Promise.all([
     getAllKalams("kalaam"),
     getAllKalams("kalaam_urdu")
   ]);
 
+  const sitemapUrls = [
+    `${SITE_URL}/`
+  ];
+
   let count = 0;
 
   for (const kalam of english) {
     if (kalam.title && kalam.lyrics) {
-      createPage(kalam, "english");
+      const pageUrl = createPage(kalam, "english");
+
+      sitemapUrls.push(pageUrl);
       count++;
     }
   }
 
   for (const kalam of urdu) {
     if (kalam.title && kalam.lyrics) {
-      createPage(kalam, "urdu");
+      const pageUrl = createPage(kalam, "urdu");
+
+      sitemapUrls.push(pageUrl);
       count++;
     }
   }
 
-  console.log(`SEO pages successfully generated: ${count}`);
+  createSitemap(sitemapUrls);
+
+  console.log(
+    `SEO pages successfully generated: ${count}`
+  );
+
+  console.log(
+    `Sitemap URLs generated: ${sitemapUrls.length}`
+  );
 }
 
 main().catch(error => {
-  console.error(error);
+  console.error("SEO GENERATOR ERROR:", error);
   process.exit(1);
 });

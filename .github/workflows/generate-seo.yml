@@ -2,6 +2,7 @@ name: Generate Kalam SEO Pages
 
 on:
   workflow_dispatch:
+
   schedule:
     - cron: "30 20 * * *"
 
@@ -21,20 +22,22 @@ jobs:
         with:
           node-version: 20
 
-      - name: Generate SEO pages
+      - name: Generate SEO pages and sitemap
         run: node scripts/generate-seo-pages.mjs
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
-      - name: Save generated pages
+      - name: Save generated pages and sitemap
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add seo-kalam
+
+          git add seo-kalam sitemap.xml
+
           if git diff --cached --quiet; then
-            echo "No new SEO pages."
+            echo "No changes found."
           else
-            git commit -m "Generate Kalam SEO pages"
+            git commit -m "Generate Kalam SEO pages and sitemap"
             git push
           fi
