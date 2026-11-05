@@ -40,6 +40,9 @@ let currentReaderKalam = null;
 
 let showingFavorites = false;
 
+// SAVE HOME PAGE SCROLL POSITION
+let savedHomeScrollY = 0;
+
 
 // Stores the English and Urdu versions of the currently open Kalam.
 
@@ -1196,6 +1199,11 @@ function openKalam(id) {
     if (!kalam) return;
 
 
+    // SAVE HOME PAGE SCROLL POSITION
+
+    savedHomeScrollY = window.scrollY;
+
+
     // RESET PREVIOUS KALAM
 
     readerKalamsByLanguage = {
@@ -1218,21 +1226,22 @@ function openKalam(id) {
     readerPage.classList.remove("hidden");
 
 
+    // HIDE BOTH LANGUAGE BUTTONS INSIDE READER
+
+    englishTab.classList.add("hidden");
+
+    urduTab.classList.add("hidden");
+
+
     renderReaderKalam(kalam);
 
 
-    // ALWAYS OPEN FROM THE TOP
+    // OPEN READER FROM TOP
 
     window.scrollTo({
         top: 0,
         behavior: "instant"
     });
-
-    document.documentElement.scrollTop = 0;
-
-    document.body.scrollTop = 0;
-
-    readerPage.scrollTop = 0;
 }
 
 
@@ -1642,6 +1651,7 @@ copyFullKalam.addEventListener("click", async function () {
 
 // =====================================
 // BACK BUTTON
+// RESTORE PREVIOUS SCROLL POSITION
 // =====================================
 
 document.getElementById("backButton").addEventListener(
@@ -1667,11 +1677,30 @@ document.getElementById("backButton").addEventListener(
         }
 
 
+        // SHOW LANGUAGE BUTTONS AGAIN
+
+        englishTab.classList.remove("hidden");
+
+        urduTab.classList.remove("hidden");
+
+
         searchInput.value = "";
 
         hideSuggestions();
 
         filterKalams();
+
+
+        // RESTORE PREVIOUS HOME PAGE SCROLL POSITION
+
+        requestAnimationFrame(function () {
+
+            window.scrollTo({
+                top: savedHomeScrollY,
+                behavior: "instant"
+            });
+
+        });
     }
 );
 
