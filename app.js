@@ -1,4 +1,3 @@
-
 "use strict";
 
 // =====================================
@@ -28,6 +27,12 @@ const copyFullKalam = document.getElementById("copyFullKalam");
 
 const favoritesToggle = document.getElementById("favoritesToggle");
 const readerFavoriteBtn = document.getElementById("readerFavoriteBtn");
+const readerTazmeenBtn = document.getElementById("readerTazmeenBtn");
+const readerTazmeenContent = document.getElementById("readerTazmeenContent");
+const readerTazmeenTabs = document.getElementById("readerTazmeenTabs");
+const readerTazmeenAshaar = document.getElementById("readerTazmeenAshaar");
+const copyFullTazmeen = document.getElementById("copyFullTazmeen");
+const closeTazmeenBtn = document.getElementById("closeTazmeenBtn");
 
 
 let englishKalams = [];
@@ -37,6 +42,9 @@ let currentLanguage = "english";
 let selectedLetter = "ALL";
 let currentKalams = [];
 let currentReaderKalam = null;
+let currentTazmeenEntries = [];
+let currentTazmeenIndex = 0;
+let isTazmeenMode = false;
 
 let showingFavorites = false;
 
@@ -151,13 +159,15 @@ function getSavedHighlights() {
 }
 
 
-function saveHighlight(kalam, coupletIndex, isHighlighted) {
+function saveHighlight(kalam, coupletIndex, isHighlighted, highlightNamespace = null) {
 
     if (!kalam) return;
 
     const saved = getSavedHighlights();
 
-    const key = `${currentLanguage}:${String(kalam.id)}:${coupletIndex}`;
+    const key = highlightNamespace
+        ? highlightNamespace + ":" + currentLanguage + ":" + String(kalam.id) + ":" + coupletIndex
+        : currentLanguage + ":" + String(kalam.id) + ":" + coupletIndex;
 
     if (isHighlighted) {
 
@@ -182,11 +192,13 @@ function saveHighlight(kalam, coupletIndex, isHighlighted) {
 }
 
 
-function isHighlightSaved(kalam, coupletIndex) {
+function isHighlightSaved(kalam, coupletIndex, highlightNamespace = null) {
 
     if (!kalam) return false;
 
-    const key = `${currentLanguage}:${String(kalam.id)}:${coupletIndex}`;
+    const key = highlightNamespace
+        ? highlightNamespace + ":" + currentLanguage + ":" + String(kalam.id) + ":" + coupletIndex
+        : currentLanguage + ":" + String(kalam.id) + ":" + coupletIndex;
 
     return getSavedHighlights()[key] === true;
 }
@@ -504,7 +516,6 @@ function toggleFavorite(kalam, language = currentLanguage) {
         );
     }
 
-
     // Update home page list immediately.
 
     filterKalams();
@@ -564,6 +575,39 @@ if (favoritesToggle) {
 
         filterKalams();
 
+    });
+}
+
+
+if (readerTazmeenBtn) {
+    readerTazmeenBtn.addEventListener("click", function () {
+        openTazmeenMode();
+    });
+}
+
+if (closeTazmeenBtn) {
+    closeTazmeenBtn.addEventListener("click", closeTazmeenMode);
+}
+
+if (copyFullTazmeen) {
+    copyFullTazmeen.addEventListener("click", async function () {
+        const selectedTazmeen = currentTazmeenEntries[currentTazmeenIndex];
+
+        if (!currentReaderKalam || !selectedTazmeen?.text) return;
+
+        const fullText = [
+            currentReaderKalam.title || "Kalam",
+            selectedTazmeen.label,
+            "",
+            selectedTazmeen.text
+        ].join("\n");
+
+        try {
+            await navigator.clipboard.writeText(fullText);
+            showMessage("Full Tazmeen copied successfully!");
+        } catch (error) {
+            showMessage("Tazmeen copy nahi ho saki.");
+        }
     });
 }
 
@@ -1235,7 +1279,6 @@ function openKalam(id) {
 
     renderReaderKalam(kalam);
 
-
     // OPEN READER FROM TOP
 
     window.scrollTo({
@@ -1248,6 +1291,119 @@ function openKalam(id) {
 // =====================================
 // RENDER READER
 // =====================================
+
+function getTazmeenEntries(kalam) {
+    const tazmeenColumns = [
+        { field: "tazmeen", label: "TAZMEEN 1" },
+        { field: "tazmeen_2", label: "TAZMEEN 2" },
+        { field: "tazmeen_3", label: "TAZMEEN 3" }
+    ];
+
+    return tazmeenColumns
+        .map(function (column) {
+            return {
+                label: column.label,
+                text: String(kalam?.[column.field] ?? "")
+            };
+        })
+        .filter(function (entry) {
+            return entry.text.trim().length > 0;
+        });
+}
+
+
+function openTazmeenMode() {
+    if (!currentTazmeenEntries.length) return;
+
+    isTazmeenMode = true;
+
+    document.getElementById("readerContent").classList.add("hidden");
+    document.querySelector(".reader-action-bar").classList.add("hidden");
+    readerFavoriteBtn.classList.add("hidden");
+    document.getElementById("backButton").classList.add("hidden");
+    readerTazmeenBtn.classList.add("hidden");
+    readerPage.classList.add("tazmeen-mode");
+    readerTazmeenBtn.setAttribute("aria-expanded", "true");
+    readerTazmeenContent.classList.remove("hidden");
+
+    renderTazmeenTabs();
+    showTazmeenEntry(0);
+}
+
+
+function closeTazmeenMode() {
+    isTazmeenMode = false;
+
+    readerTazmeenContent.classList.add("hidden");
+    readerTazmeenBtn.setAttribute("aria-expanded", "false");
+
+    document.getElementById("readerContent").classList.remove("hidden");
+    document.querySelector(".reader-action-bar").classList.remove("hidden");
+    document.getElementById("backButton").classList.remove("hidden");
+    readerFavoriteBtn.classList.remove("hidden");
+    readerPage.classList.remove("tazmeen-mode");
+    readerTazmeenBtn.classList.toggle(
+        "hidden",
+        currentTazmeenEntries.length === 0
+    );
+    readerTazmeenBtn.textContent = "📜 TAZMEEN";
+}
+
+
+function renderTazmeenTabs() {
+    readerTazmeenTabs.replaceChildren();
+    readerTazmeenTabs.classList.toggle(
+        "hidden",
+        currentTazmeenEntries.length <= 1
+    );
+
+    if (currentTazmeenEntries.length <= 1) return;
+
+    currentTazmeenEntries.forEach(function (entry, index) {
+        const tab = document.createElement("button");
+
+        tab.type = "button";
+        tab.className = "tazmeen-tab-btn";
+        tab.textContent = entry.label;
+        tab.setAttribute("aria-pressed", String(index === currentTazmeenIndex));
+
+        if (index === currentTazmeenIndex) {
+            tab.classList.add("active");
+        }
+
+        tab.addEventListener("click", function () {
+            showTazmeenEntry(index);
+        });
+
+        readerTazmeenTabs.appendChild(tab);
+    });
+}
+
+
+function showTazmeenEntry(index) {
+    if (!currentTazmeenEntries[index]) return;
+
+    currentTazmeenIndex = index;
+
+    readerTazmeenTabs.querySelectorAll(".tazmeen-tab-btn").forEach(
+        function (tab, tabIndex) {
+            const active = tabIndex === index;
+
+            tab.classList.toggle("active", active);
+            tab.setAttribute("aria-pressed", String(active));
+        }
+    );
+
+    readerTazmeenAshaar.dir = currentLanguage === "urdu" ? "rtl" : "auto";
+    readerTazmeenAshaar.classList.toggle(
+        "urdu-reader",
+        currentLanguage === "urdu"
+    );
+
+    readerTazmeenAshaar.textContent = currentTazmeenEntries[index].text;
+    readerTazmeenAshaar.classList.add("tazmeen-plain-text");
+}
+
 
 function renderReaderKalam(kalam) {
 
@@ -1281,6 +1437,21 @@ function renderReaderKalam(kalam) {
         );
     }
 
+
+    // Read this language version's Tazmeen value.
+
+    currentTazmeenEntries = getTazmeenEntries(kalam);
+    currentTazmeenIndex = 0;
+
+    closeTazmeenMode();
+
+    readerTazmeenBtn.classList.toggle(
+        "hidden",
+        currentTazmeenEntries.length === 0
+    );
+
+    readerTazmeenTabs.replaceChildren();
+    readerTazmeenAshaar.replaceChildren();
 
     // LANGUAGE DIRECTION
 
@@ -1343,6 +1514,11 @@ function renderUnavailableLanguage(sourceKalam) {
     // Do not keep an unrelated or old Kalam active.
 
     currentReaderKalam = null;
+    currentTazmeenEntries = [];
+    currentTazmeenIndex = 0;
+    isTazmeenMode = false;
+    readerPage.classList.remove("tazmeen-mode");
+    document.getElementById("backButton").classList.remove("hidden");
 
 
     // HIDE READER FAVOURITE BUTTON
@@ -1352,6 +1528,10 @@ function renderUnavailableLanguage(sourceKalam) {
         readerFavoriteBtn.classList.add("hidden");
     }
 
+
+    if (readerTazmeenBtn) readerTazmeenBtn.classList.add("hidden");
+    if (readerTazmeenContent) readerTazmeenContent.classList.add("hidden");
+    readerContent.classList.remove("hidden");
 
     // KEEP THE SOURCE KALAM TITLE
 
@@ -1405,9 +1585,12 @@ function renderUnavailableLanguage(sourceKalam) {
 // PERSISTENT HIGHLIGHT
 // =====================================
 
-function renderAshaar(lyrics) {
-
-    const reader = document.getElementById("readerContent");
+function renderAshaar(
+    lyrics,
+    reader = document.getElementById("readerContent"),
+    highlightNamespace = null,
+    showActions = true
+) {
 
     reader.replaceChildren();
 
@@ -1488,9 +1671,10 @@ function renderAshaar(lyrics) {
 
         const highlightBtn = createButton("Highlight");
 
-        const initiallyHighlighted = isHighlightSaved(
+        const initiallyHighlighted = showActions && isHighlightSaved(
             currentReaderKalam,
-            coupletIndex
+            coupletIndex,
+            highlightNamespace
         );
 
 
@@ -1522,7 +1706,8 @@ function renderAshaar(lyrics) {
             saveHighlight(
                 currentReaderKalam,
                 coupletIndex,
-                active
+                active,
+                highlightNamespace
             );
         });
 
@@ -1572,16 +1757,20 @@ function renderAshaar(lyrics) {
         });
 
 
-        actions.append(
-            copyBtn,
-            highlightBtn,
-            shareBtn
-        );
+        if (showActions) {
+            actions.append(
+                copyBtn,
+                highlightBtn,
+                shareBtn
+            );
 
-        couplet.append(
-            verse,
-            actions
-        );
+            couplet.append(
+                verse,
+                actions
+            );
+        } else {
+            couplet.appendChild(verse);
+        }
 
         reader.appendChild(couplet);
     }
@@ -1664,6 +1853,10 @@ document.getElementById("backButton").addEventListener(
 
 
         currentReaderKalam = null;
+        currentTazmeenEntries = [];
+        currentTazmeenIndex = 0;
+        isTazmeenMode = false;
+        readerPage.classList.remove("tazmeen-mode");
 
         readerKalamsByLanguage = {
             english: null,
@@ -1676,6 +1869,10 @@ document.getElementById("backButton").addEventListener(
             readerFavoriteBtn.classList.add("hidden");
         }
 
+
+        if (readerTazmeenBtn) readerTazmeenBtn.classList.add("hidden");
+        if (readerTazmeenContent) readerTazmeenContent.classList.add("hidden");
+        document.getElementById("readerContent").classList.remove("hidden");
 
         // SHOW LANGUAGE BUTTONS AGAIN
 
@@ -1721,7 +1918,9 @@ const fontIncrease = document.getElementById("fontIncrease");
 
 function updateFontSize() {
 
-    document.querySelectorAll("#readerContent .verse").forEach(
+    document.querySelectorAll(
+        "#readerContent .verse, #readerTazmeenAshaar .verse"
+    ).forEach(
         function (verse) {
 
             verse.style.fontSize = (

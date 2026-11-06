@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -307,7 +306,36 @@
                     ♡ Favourite
                 </button>
 
+                <button
+                    id="readerTazmeenBtn"
+                    class="reader-favorite-btn hidden"
+                    type="button"
+                    aria-expanded="false"
+                >
+                    📜 TAZMEEN
+                </button>
+
             </div>
+
+            <section id="readerTazmeenContent" class="reader-tazmeen-content hidden" aria-live="polite">
+                <div class="tazmeen-toolbar">
+                    <div class="tazmeen-top-row">
+                        <button id="closeTazmeenBtn" class="tazmeen-back-btn" type="button">
+                            ← Back to Kalam
+                        </button>
+                        <div id="readerTazmeenTabs" class="tazmeen-tabs"></div>
+                        <div class="tazmeen-actions">
+                        
+
+                            <button id="copyFullTazmeen" class="copy-full-btn" type="button">
+                                📋 Copy Full Tazmeen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="readerTazmeenAshaar" class="reader-content"></div>
+            </section>
 
 
             <!-- READER ACTIONS -->
