@@ -33,6 +33,8 @@ const readerTazmeenTabs = document.getElementById("readerTazmeenTabs");
 const readerTazmeenAshaar = document.getElementById("readerTazmeenAshaar");
 const copyFullTazmeen = document.getElementById("copyFullTazmeen");
 const closeTazmeenBtn = document.getElementById("closeTazmeenBtn");
+const tazmeenFontDecrease = document.getElementById("tazmeenFontDecrease");
+const tazmeenFontIncrease = document.getElementById("tazmeenFontIncrease");
 
 
 let englishKalams = [];
@@ -45,6 +47,8 @@ let currentReaderKalam = null;
 let currentTazmeenEntries = [];
 let currentTazmeenIndex = 0;
 let isTazmeenMode = false;
+let tazmeenEnglishFontSize = 24;
+let tazmeenUrduFontSize = 24;
 
 let showingFavorites = false;
 
@@ -1402,6 +1406,7 @@ function showTazmeenEntry(index) {
 
     readerTazmeenAshaar.textContent = currentTazmeenEntries[index].text;
     readerTazmeenAshaar.classList.add("tazmeen-plain-text");
+    updateFontSize();
 }
 
 
@@ -1930,6 +1935,14 @@ function updateFontSize() {
             ) + "px";
         }
     );
+
+    if (readerTazmeenAshaar.classList.contains("tazmeen-plain-text")) {
+        readerTazmeenAshaar.style.fontSize = (
+            currentLanguage === "urdu"
+                ? tazmeenUrduFontSize
+                : tazmeenEnglishFontSize
+        ) + "px";
+    }
 }
 
 
@@ -1948,6 +1961,28 @@ fontIncrease.addEventListener("click", function () {
             englishFontSize + 2,
             38
         );
+    }
+
+    updateFontSize();
+});
+
+
+tazmeenFontIncrease.addEventListener("click", function () {
+    if (currentLanguage === "urdu") {
+        tazmeenUrduFontSize = Math.min(tazmeenUrduFontSize + 2, 42);
+    } else {
+        tazmeenEnglishFontSize = Math.min(tazmeenEnglishFontSize + 2, 38);
+    }
+
+    updateFontSize();
+});
+
+
+tazmeenFontDecrease.addEventListener("click", function () {
+    if (currentLanguage === "urdu") {
+        tazmeenUrduFontSize = Math.max(tazmeenUrduFontSize - 2, 16);
+    } else {
+        tazmeenEnglishFontSize = Math.max(tazmeenEnglishFontSize - 2, 14);
     }
 
     updateFontSize();

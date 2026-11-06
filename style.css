@@ -540,6 +540,10 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     flex: 0 1 auto;
 }
 
+.tazmeen-actions .font-controls {
+    gap: 5px;
+}
+
 .tazmeen-actions .copy-full-btn {
     min-height: 36px;
     margin: 0;
@@ -617,7 +621,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     }
 
     .tazmeen-actions .copy-full-btn {
-        width: 100%;
+        width: auto;
     }
 }
 
