@@ -47,7 +47,10 @@ async function getAllKalams(table) {
       `${SUPABASE_URL}/rest/v1/${table}`
     );
 
-    url.searchParams.set("select", "id,title,lyrics");
+    url.searchParams.set(
+      "select",
+      "id,title,lyrics,tazmeen,tazmeen_2,tazmeen_3"
+    );
     url.searchParams.set("order", "id.asc");
 
     const response = await fetch(url, {
@@ -76,11 +79,11 @@ async function getAllKalams(table) {
   return all;
 }
 
-function createPage(kalam, language) {
-  const title = String(kalam.title || "Kalam");
-  const lyrics = String(kalam.lyrics || "");
+function createPage(kalam, language, pageContent = {}) {
+  const title = String(pageContent.title || kalam.title || "Kalam");
+  const lyrics = String(pageContent.lyrics ?? kalam.lyrics ?? "");
 
-  const slug = makeSlug(title, kalam.id);
+  const slug = makeSlug(pageContent.slugTitle || title, kalam.id);
 
   const folder = path.join(
     OUTPUT_DIR,
@@ -222,11 +225,43 @@ async function main() {
       sitemapUrls.push(pageUrl);
       count++;
     }
+
+    const tazmeenFields = ["tazmeen", "tazmeen_2", "tazmeen_3"];
+    for (const [index, field] of tazmeenFields.entries()) {
+      const text = String(kalam[field] || "").trim();
+      if (!kalam.title || !text) continue;
+
+      const label = `Tazmeen ${index + 1}`;
+      const pageUrl = createPage(kalam, "english", {
+        title: `${kalam.title} — ${label}`,
+        slugTitle: `${kalam.title} ${label}`,
+        lyrics: text
+      });
+
+      sitemapUrls.push(pageUrl);
+      count++;
+    }
   }
 
   for (const kalam of urdu) {
     if (kalam.title && kalam.lyrics) {
       const pageUrl = createPage(kalam, "urdu");
+
+      sitemapUrls.push(pageUrl);
+      count++;
+    }
+
+    const tazmeenFields = ["tazmeen", "tazmeen_2", "tazmeen_3"];
+    for (const [index, field] of tazmeenFields.entries()) {
+      const text = String(kalam[field] || "").trim();
+      if (!kalam.title || !text) continue;
+
+      const label = `Tazmeen ${index + 1}`;
+      const pageUrl = createPage(kalam, "urdu", {
+        title: `${kalam.title} — ${label}`,
+        slugTitle: `${kalam.title} ${label}`,
+        lyrics: text
+      });
 
       sitemapUrls.push(pageUrl);
       count++;
