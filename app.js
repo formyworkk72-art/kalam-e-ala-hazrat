@@ -47,8 +47,9 @@ let currentReaderKalam = null;
 let currentTazmeenEntries = [];
 let currentTazmeenIndex = 0;
 let isTazmeenMode = false;
-let tazmeenEnglishFontSize = 24;
-let tazmeenUrduFontSize = 24;
+const compactReaderLayout = window.matchMedia("(max-width: 650px)").matches;
+let tazmeenEnglishFontSize = compactReaderLayout ? 17 : 24;
+let tazmeenUrduFontSize = compactReaderLayout ? 20 : 24;
 
 let showingFavorites = false;
 
@@ -102,7 +103,7 @@ function applyTheme(theme, save = true) {
     if (themeColor) {
         themeColor.setAttribute(
             "content",
-            isDark ? "#111a16" : "#f7f9f6"
+            isDark ? "#10131f" : "#eef4ef"
         );
     }
 }
@@ -130,6 +131,7 @@ let messageTimer;
 
 function showMessage(text) {
 
+    message.classList.remove("share-toast");
     message.textContent = text;
 
     clearTimeout(messageTimer);
@@ -139,6 +141,19 @@ function showMessage(text) {
         message.textContent = "";
 
     }, 2500);
+}
+
+function showShareConfirmation(text) {
+    clearTimeout(messageTimer);
+    message.textContent = text;
+    message.classList.remove("share-toast");
+    void message.offsetWidth;
+    message.classList.add("share-toast");
+
+    messageTimer = setTimeout(function () {
+        message.textContent = "";
+        message.classList.remove("share-toast");
+    }, 1800);
 }
 
 
@@ -1738,14 +1753,12 @@ function renderAshaar(
                         text: text
 
                     });
+                    showShareConfirmation("Shared!");
 
                 } else if (navigator.clipboard) {
 
                     await navigator.clipboard.writeText(text);
-
-                    showMessage(
-                        "Ashaar copied. Ab share kar sakte hain."
-                    );
+                    showShareConfirmation("Copied to share");
 
                 } else {
 
@@ -1911,9 +1924,8 @@ document.getElementById("backButton").addEventListener(
 // FONT SIZE CONTROLS
 // =====================================
 
-let englishFontSize = 21;
-
-let urduFontSize = 24;
+let englishFontSize = compactReaderLayout ? 16 : 21;
+let urduFontSize = compactReaderLayout ? 20 : 24;
 
 
 const fontDecrease = document.getElementById("fontDecrease");

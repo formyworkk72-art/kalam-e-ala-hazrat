@@ -83,10 +83,6 @@
                 کلامِ اعلیٰ حضرت
             </div>
 
-            <div class="brand-subtitle">
-                KALAM-E-ALA HAZRAT
-            </div>
-
             <div class="brand-divider"></div>
 
             <div class="brand-poet" dir="rtl">
@@ -148,21 +144,6 @@
                 </div>
 
 
-                <div class="theme-area">
-
-                    <button
-                        type="button"
-                        id="themeToggle"
-                        class="theme-toggle"
-                        aria-label="Switch to dark theme"
-                        aria-pressed="false"
-                        title="Switch theme"
-                    >
-                        🌙 Dark
-                    </button>
-
-                </div>
-
             </div>
 
 
@@ -211,28 +192,20 @@
                 <button class="letter-btn" data-letter="ب" type="button">ب</button>
                 <button class="letter-btn" data-letter="پ" type="button">پ</button>
                 <button class="letter-btn" data-letter="ت" type="button">ت</button>
-                <button class="letter-btn" data-letter="ٹ" type="button">ٹ</button>
-                <button class="letter-btn" data-letter="ث" type="button">ث</button>
                 <button class="letter-btn" data-letter="ج" type="button">ج</button>
                 <button class="letter-btn" data-letter="چ" type="button">چ</button>
                 <button class="letter-btn" data-letter="ح" type="button">ح</button>
                 <button class="letter-btn" data-letter="خ" type="button">خ</button>
                 <button class="letter-btn" data-letter="د" type="button">د</button>
-                <button class="letter-btn" data-letter="ڈ" type="button">ڈ</button>
                 <button class="letter-btn" data-letter="ذ" type="button">ذ</button>
                 <button class="letter-btn" data-letter="ر" type="button">ر</button>
-                <button class="letter-btn" data-letter="ڑ" type="button">ڑ</button>
                 <button class="letter-btn" data-letter="ز" type="button">ز</button>
-                <button class="letter-btn" data-letter="ژ" type="button">ژ</button>
                 <button class="letter-btn" data-letter="س" type="button">س</button>
                 <button class="letter-btn" data-letter="ش" type="button">ش</button>
-                <button class="letter-btn" data-letter="ص" type="button">ص</button>
                 <button class="letter-btn" data-letter="ض" type="button">ض</button>
                 <button class="letter-btn" data-letter="ط" type="button">ط</button>
-                <button class="letter-btn" data-letter="ظ" type="button">ظ</button>
                 <button class="letter-btn" data-letter="ع" type="button">ع</button>
                 <button class="letter-btn" data-letter="غ" type="button">غ</button>
-                <button class="letter-btn" data-letter="ف" type="button">ف</button>
                 <button class="letter-btn" data-letter="ق" type="button">ق</button>
                 <button class="letter-btn" data-letter="ک" type="button">ک</button>
                 <button class="letter-btn" data-letter="گ" type="button">گ</button>
@@ -241,8 +214,6 @@
                 <button class="letter-btn" data-letter="ن" type="button">ن</button>
                 <button class="letter-btn" data-letter="و" type="button">و</button>
                 <button class="letter-btn" data-letter="ہ" type="button">ہ</button>
-                <button class="letter-btn" data-letter="ھ" type="button">ھ</button>
-                <button class="letter-btn" data-letter="ء" type="button">ء</button>
                 <button class="letter-btn" data-letter="ی" type="button">ی</button>
 
             </div>
@@ -255,6 +226,20 @@
                 <h2 id="sectionTitle">NAAT E PAAK</h2>
 
                 <div class="heading-actions">
+                    <div class="theme-area">
+                        <button
+                            type="button"
+                            id="themeToggle"
+                            class="theme-toggle"
+                            aria-label="Switch to dark theme"
+                            aria-pressed="false"
+                            title="Switch theme"
+                        >
+                            🌙 Dark
+                        </button>
+                    </div>
+
+                    <span id="kalamCount">Loading...</span>
 
                     <button
                         id="favoritesToggle"
@@ -264,8 +249,6 @@
                     >
                         ❤️ Favourite
                     </button>
-
-                    <span id="kalamCount">Loading...</span>
 
                 </div>
 
@@ -288,15 +271,10 @@
         <!-- READER PAGE -->
 
         <section id="readerPage" class="reader-page hidden">
-
-            <button id="backButton" class="back-button" type="button">
-                ← Back
-            </button>
-
-            <div class="reader-heading">
-
-                <h2 id="readerTitle"></h2>
-
+            <div class="reader-top-row">
+                <button id="backButton" class="back-button" type="button">
+                    ← Back
+                </button>
                 <button
                     id="readerFavoriteBtn"
                     class="reader-favorite-btn"
@@ -305,6 +283,11 @@
                 >
                     ♡ Favourite
                 </button>
+            </div>
+
+            <div class="reader-heading">
+
+                <h2 id="readerTitle"></h2>
 
                 <button
                     id="readerTazmeenBtn"
