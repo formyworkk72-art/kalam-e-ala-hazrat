@@ -202,7 +202,7 @@
                 <button class="letter-btn" data-letter="ز" type="button">ز</button>
                 <button class="letter-btn" data-letter="س" type="button">س</button>
                 <button class="letter-btn" data-letter="ش" type="button">ش</button>
-                <button class="letter-btn" data-letter="ض" type="button">ض</button>
+                <button class="letter-btn" data-letter="ص" type="button">ص</button>
                 <button class="letter-btn" data-letter="ط" type="button">ط</button>
                 <button class="letter-btn" data-letter="ع" type="button">ع</button>
                 <button class="letter-btn" data-letter="غ" type="button">غ</button>
@@ -308,21 +308,6 @@
                         </button>
                         <div id="readerTazmeenTabs" class="tazmeen-tabs"></div>
                         <div class="tazmeen-actions">
-                            <div class="font-controls" aria-label="Tazmeen font size controls">
-                                <button
-                                    id="tazmeenFontDecrease"
-                                    class="font-btn"
-                                    type="button"
-                                    aria-label="Decrease Tazmeen font size"
-                                >−</button>
-                                <button
-                                    id="tazmeenFontIncrease"
-                                    class="font-btn"
-                                    type="button"
-                                    aria-label="Increase Tazmeen font size"
-                                >+</button>
-                            </div>
-
                             <button id="copyFullTazmeen" class="copy-full-btn" type="button">
                                 📋 Copy Full Tazmeen
                             </button>
@@ -341,29 +326,11 @@
                 <button id="copyFullKalam" class="copy-full-btn" type="button">
                     📋 Copy Full Kalam
                 </button>
-
-                <div class="font-controls" aria-label="Font size controls">
-
-                    <button
-                        id="fontDecrease"
-                        class="font-btn"
-                        type="button"
-                        aria-label="Decrease font size"
-                    >
-                        −
-                    </button>
-
-                    <button
-                        id="fontIncrease"
-                        class="font-btn"
-                        type="button"
-                        aria-label="Increase font size"
-                    >
-                        +
-                    </button>
-
+                <div class="font-controls" role="group" aria-label="Lyrics size">
+                    <button id="fontDecrease" class="font-btn" type="button" aria-label="Decrease lyrics size">−</button>
+                    <output id="readerFontSizeValue" aria-live="polite"></output>
+                    <button id="fontIncrease" class="font-btn" type="button" aria-label="Increase lyrics size">+</button>
                 </div>
-
             </div>
 
 

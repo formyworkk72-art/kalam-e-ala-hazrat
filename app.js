@@ -33,8 +33,7 @@ const readerTazmeenTabs = document.getElementById("readerTazmeenTabs");
 const readerTazmeenAshaar = document.getElementById("readerTazmeenAshaar");
 const copyFullTazmeen = document.getElementById("copyFullTazmeen");
 const closeTazmeenBtn = document.getElementById("closeTazmeenBtn");
-const tazmeenFontDecrease = document.getElementById("tazmeenFontDecrease");
-const tazmeenFontIncrease = document.getElementById("tazmeenFontIncrease");
+const readerFontSizeValue = document.getElementById("readerFontSizeValue");
 
 
 let englishKalams = [];
@@ -47,10 +46,7 @@ let currentReaderKalam = null;
 let currentTazmeenEntries = [];
 let currentTazmeenIndex = 0;
 let isTazmeenMode = false;
-const compactReaderLayout = window.matchMedia("(max-width: 650px)").matches;
-let tazmeenEnglishFontSize = compactReaderLayout ? 17 : 24;
-let tazmeenUrduFontSize = compactReaderLayout ? 20 : 24;
-
+let currentAppHistoryView = "home";
 let showingFavorites = false;
 
 // SAVE HOME PAGE SCROLL POSITION
@@ -75,7 +71,8 @@ const FAVORITE_STORAGE_KEY = "kalam-favorite-list";
 
 function applyTheme(theme, save = true) {
 
-    const selectedTheme = theme === "dark" ? "dark" : "light";
+    const availableThemes = ["light", "dark", "indigo"];
+    const selectedTheme = availableThemes.includes(theme) ? theme : "light";
 
     document.body.dataset.theme = selectedTheme;
 
@@ -83,18 +80,32 @@ function applyTheme(theme, save = true) {
         localStorage.setItem("kalam-theme", selectedTheme);
     }
 
-    const isDark = selectedTheme === "dark";
+    const nextTheme = {
+        light: "dark",
+        dark: "indigo",
+        indigo: "light"
+    }[selectedTheme];
+    const nextThemeName = {
+        light: "Light",
+        dark: "Dark",
+        indigo: "Royal Indigo + Moonstone"
+    }[nextTheme];
+    const nextThemeLabel = {
+        light: "☀️ Light",
+        dark: "🌙 Dark",
+        indigo: "🔷 Indigo"
+    }[nextTheme];
 
-    themeToggle.textContent = isDark ? "☀️ Light" : "🌙 Dark";
+    themeToggle.textContent = nextThemeLabel;
 
     themeToggle.setAttribute(
         "aria-label",
-        isDark ? "Switch to light theme" : "Switch to dark theme"
+        `Switch to ${nextThemeName} theme`
     );
 
-    themeToggle.setAttribute("aria-pressed", String(isDark));
+    themeToggle.setAttribute("aria-pressed", String(selectedTheme !== "light"));
 
-    themeToggle.title = isDark ? "Switch to light theme" : "Switch theme";
+    themeToggle.title = `Switch to ${nextThemeName} theme`;
 
     const themeColor = document.querySelector(
         'meta[name="theme-color"]'
@@ -103,23 +114,27 @@ function applyTheme(theme, save = true) {
     if (themeColor) {
         themeColor.setAttribute(
             "content",
-            isDark ? "#10131f" : "#eef4ef"
+            selectedTheme === "dark"
+                ? "#10131f"
+                : selectedTheme === "indigo"
+                    ? "#F3F2F8"
+                    : "#eef4ef"
         );
     }
 }
 
 const storedTheme = localStorage.getItem("kalam-theme");
 
-const initialTheme = storedTheme === "dark" ? "dark" : "light";
+const initialTheme = ["light", "dark", "indigo"].includes(storedTheme)
+    ? storedTheme
+    : "light";
 
 applyTheme(initialTheme, storedTheme !== initialTheme);
 
 themeToggle.addEventListener("click", function () {
-
-    applyTheme(
-        document.body.dataset.theme === "dark" ? "light" : "dark"
-    );
-
+    const themeOrder = ["light", "dark", "indigo"];
+    const currentIndex = themeOrder.indexOf(document.body.dataset.theme);
+    applyTheme(themeOrder[(currentIndex + 1) % themeOrder.length]);
 });
 
 
@@ -605,7 +620,13 @@ if (readerTazmeenBtn) {
 }
 
 if (closeTazmeenBtn) {
-    closeTazmeenBtn.addEventListener("click", closeTazmeenMode);
+    closeTazmeenBtn.addEventListener("click", function () {
+        if (currentAppHistoryView === "tazmeen") {
+            window.history.back();
+        } else {
+            closeTazmeenMode();
+        }
+    });
 }
 
 if (copyFullTazmeen) {
@@ -1227,10 +1248,7 @@ function displayKalams(kalams) {
         });
 
 
-        titleRow.append(
-            title,
-            favoriteBtn
-        );
+        titleRow.append(title, favoriteBtn);
 
 
         card.appendChild(titleRow);
@@ -1253,13 +1271,35 @@ function displayKalams(kalams) {
 // OPEN KALAM
 // =====================================
 
-function openKalam(id) {
+function pushKalamHistoryState(view, kalamId) {
+    try {
+        const previousState = window.history.state &&
+            typeof window.history.state === "object"
+            ? window.history.state
+            : {};
+        window.history.pushState(
+            { ...previousState, kalamAppView: view, kalamId: String(kalamId) },
+            "",
+            window.location.href
+        );
+        currentAppHistoryView = view;
+        return true;
+    } catch (error) {
+        currentAppHistoryView = "home";
+        return false;
+    }
+}
+
+
+function openKalam(id, restoringHistory = false) {
 
     const kalam = currentKalams.find(
         item => String(item.id) === String(id)
     );
 
     if (!kalam) return;
+
+    if (!restoringHistory) pushKalamHistoryState("reader", id);
 
 
     // SAVE HOME PAGE SCROLL POSITION
@@ -1331,8 +1371,10 @@ function getTazmeenEntries(kalam) {
 }
 
 
-function openTazmeenMode() {
+function openTazmeenMode(restoringHistory = false) {
     if (!currentTazmeenEntries.length) return;
+
+    if (!restoringHistory) pushKalamHistoryState("tazmeen", currentReaderKalam.id);
 
     isTazmeenMode = true;
 
@@ -1419,7 +1461,14 @@ function showTazmeenEntry(index) {
         currentLanguage === "urdu"
     );
 
-    readerTazmeenAshaar.textContent = currentTazmeenEntries[index].text;
+    const tazmeenLines = currentTazmeenEntries[index].text.split(/\r?\n/);
+    readerTazmeenAshaar.replaceChildren();
+    tazmeenLines.forEach(function (line) {
+        const lineElement = document.createElement("span");
+        lineElement.className = "verse-line";
+        lineElement.textContent = line || "\u00a0";
+        readerTazmeenAshaar.appendChild(lineElement);
+    });
     readerTazmeenAshaar.classList.add("tazmeen-plain-text");
     updateFontSize();
 }
@@ -1650,7 +1699,15 @@ function renderAshaar(
 
         verse.className = "verse";
 
-        verse.textContent = lines.slice(i, i + 2).join("\n");
+        const coupletLines = lines.slice(i, i + 2);
+        const verseText = coupletLines.join("\n");
+
+        coupletLines.forEach(function (line) {
+            const lineElement = document.createElement("span");
+            lineElement.className = "verse-line";
+            lineElement.textContent = line;
+            verse.appendChild(lineElement);
+        });
 
 
         const actions = document.createElement("div");
@@ -1663,13 +1720,25 @@ function renderAshaar(
         // =====================================
 
         const copyBtn = createButton("Copy");
+        copyBtn.classList.add("copy-action-btn");
+        copyBtn.innerHTML = '<span class="copy-btn-label">Copy</span>';
 
         copyBtn.addEventListener("click", async function () {
+            couplet.classList.remove("copy-scanning");
+            copyBtn.classList.remove("copy-scanning");
+            clearTimeout(copyBtn.scanTimer);
+            void couplet.offsetWidth;
+            couplet.classList.add("copy-scanning");
+            copyBtn.classList.add("copy-scanning");
+            copyBtn.scanTimer = window.setTimeout(function () {
+                couplet.classList.remove("copy-scanning");
+                copyBtn.classList.remove("copy-scanning");
+            }, 1200);
 
             try {
 
                 await navigator.clipboard.writeText(
-                    verse.textContent
+                    verseText
                 );
 
                 showMessage(
@@ -1740,7 +1809,7 @@ function renderAshaar(
 
         shareBtn.addEventListener("click", async function () {
 
-            const text = verse.textContent;
+            const text = verseText;
 
             try {
 
@@ -1857,75 +1926,86 @@ copyFullKalam.addEventListener("click", async function () {
 
 
 // =====================================
-// BACK BUTTON
-// RESTORE PREVIOUS SCROLL POSITION
+// READER NAVIGATION
 // =====================================
 
-document.getElementById("backButton").addEventListener(
-    "click",
-    function () {
+function closeReaderToHome() {
+    currentAppHistoryView = "home";
+    readerPage.classList.add("hidden");
+    homePage.classList.remove("hidden");
 
-        readerPage.classList.add("hidden");
+    currentReaderKalam = null;
+    currentTazmeenEntries = [];
+    currentTazmeenIndex = 0;
+    isTazmeenMode = false;
+    readerPage.classList.remove("tazmeen-mode");
 
-        homePage.classList.remove("hidden");
+    readerKalamsByLanguage = {
+        english: null,
+        urdu: null
+    };
 
+    if (readerFavoriteBtn) readerFavoriteBtn.classList.add("hidden");
+    if (readerTazmeenBtn) readerTazmeenBtn.classList.add("hidden");
+    if (readerTazmeenContent) readerTazmeenContent.classList.add("hidden");
+    document.querySelector(".reader-action-bar").classList.remove("hidden");
+    document.getElementById("backButton").classList.remove("hidden");
+    document.getElementById("readerContent").classList.remove("hidden");
+    englishTab.classList.remove("hidden");
+    urduTab.classList.remove("hidden");
 
-        currentReaderKalam = null;
-        currentTazmeenEntries = [];
-        currentTazmeenIndex = 0;
-        isTazmeenMode = false;
-        readerPage.classList.remove("tazmeen-mode");
+    searchInput.value = "";
+    hideSuggestions();
+    filterKalams();
 
-        readerKalamsByLanguage = {
-            english: null,
-            urdu: null
-        };
-
-
-        if (readerFavoriteBtn) {
-
-            readerFavoriteBtn.classList.add("hidden");
-        }
-
-
-        if (readerTazmeenBtn) readerTazmeenBtn.classList.add("hidden");
-        if (readerTazmeenContent) readerTazmeenContent.classList.add("hidden");
-        document.getElementById("readerContent").classList.remove("hidden");
-
-        // SHOW LANGUAGE BUTTONS AGAIN
-
-        englishTab.classList.remove("hidden");
-
-        urduTab.classList.remove("hidden");
+    requestAnimationFrame(function () {
+        window.scrollTo({ top: savedHomeScrollY, behavior: "instant" });
+    });
+}
 
 
-        searchInput.value = "";
-
-        hideSuggestions();
-
-        filterKalams();
-
-
-        // RESTORE PREVIOUS HOME PAGE SCROLL POSITION
-
-        requestAnimationFrame(function () {
-
-            window.scrollTo({
-                top: savedHomeScrollY,
-                behavior: "instant"
-            });
-
-        });
+document.getElementById("backButton").addEventListener("click", function () {
+    if (currentAppHistoryView === "reader" || currentAppHistoryView === "tazmeen") {
+        window.history.back();
+    } else {
+        closeReaderToHome();
     }
-);
+});
+
+
+window.addEventListener("popstate", function (event) {
+    const nextView = event.state?.kalamAppView || "home";
+
+    if (nextView === "tazmeen") {
+        currentAppHistoryView = "tazmeen";
+        if (!isTazmeenMode && !readerPage.classList.contains("hidden")) {
+            openTazmeenMode(true);
+        }
+        return;
+    }
+
+    if (nextView === "reader") {
+        if (isTazmeenMode) closeTazmeenMode();
+        currentAppHistoryView = "reader";
+        if (readerPage.classList.contains("hidden") && event.state?.kalamId) {
+            openKalam(event.state.kalamId, true);
+        }
+        return;
+    }
+
+    currentAppHistoryView = "home";
+    if (isTazmeenMode) closeTazmeenMode();
+    if (!readerPage.classList.contains("hidden")) closeReaderToHome();
+});
 
 
 // =====================================
 // FONT SIZE CONTROLS
 // =====================================
 
-let englishFontSize = compactReaderLayout ? 16 : 21;
-let urduFontSize = compactReaderLayout ? 20 : 24;
+const isCompactReader = window.matchMedia("(max-width: 650px)").matches;
+let englishFontSize = isCompactReader ? 44 : 30;
+let urduFontSize = isCompactReader ? 48 : 34;
 
 
 const fontDecrease = document.getElementById("fontDecrease");
@@ -1933,28 +2013,56 @@ const fontDecrease = document.getElementById("fontDecrease");
 const fontIncrease = document.getElementById("fontIncrease");
 
 
+function fitLinesToWidth(container, lines, preferredSize) {
+    const containerStyle = window.getComputedStyle(container);
+    const availableWidth = container.clientWidth -
+        parseFloat(containerStyle.paddingLeft) -
+        parseFloat(containerStyle.paddingRight);
+    if (!lines.length || !availableWidth) return preferredSize;
+
+    let size = preferredSize;
+    container.style.fontSize = size + "px";
+    while (size > 7 && lines.some(function (line) {
+        return line.getBoundingClientRect().width > availableWidth;
+    })) {
+        size -= 1;
+        container.style.fontSize = size + "px";
+    }
+    return size;
+}
+
+
 function updateFontSize() {
+
+    const activeFontSize = currentLanguage === "urdu"
+        ? urduFontSize
+        : englishFontSize;
 
     document.querySelectorAll(
         "#readerContent .verse, #readerTazmeenAshaar .verse"
     ).forEach(
         function (verse) {
 
-            verse.style.fontSize = (
-                currentLanguage === "urdu"
-                    ? urduFontSize
-                    : englishFontSize
-            ) + "px";
+            const lines = Array.from(verse.querySelectorAll(".verse-line"));
+            fitLinesToWidth(verse, lines, activeFontSize);
         }
     );
 
     if (readerTazmeenAshaar.classList.contains("tazmeen-plain-text")) {
-        readerTazmeenAshaar.style.fontSize = (
-            currentLanguage === "urdu"
-                ? tazmeenUrduFontSize
-                : tazmeenEnglishFontSize
-        ) + "px";
+        const lines = Array.from(readerTazmeenAshaar.querySelectorAll(".verse-line"));
+        fitLinesToWidth(readerTazmeenAshaar, lines, activeFontSize);
     }
+
+    readerFontSizeValue.textContent = activeFontSize + "px";
+}
+
+
+window.addEventListener("resize", function () {
+    requestAnimationFrame(updateFontSize);
+});
+
+if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateFontSize);
 }
 
 
@@ -1964,37 +2072,15 @@ fontIncrease.addEventListener("click", function () {
 
         urduFontSize = Math.min(
             urduFontSize + 2,
-            42
+            48
         );
 
     } else {
 
         englishFontSize = Math.min(
             englishFontSize + 2,
-            38
+            44
         );
-    }
-
-    updateFontSize();
-});
-
-
-tazmeenFontIncrease.addEventListener("click", function () {
-    if (currentLanguage === "urdu") {
-        tazmeenUrduFontSize = Math.min(tazmeenUrduFontSize + 2, 42);
-    } else {
-        tazmeenEnglishFontSize = Math.min(tazmeenEnglishFontSize + 2, 38);
-    }
-
-    updateFontSize();
-});
-
-
-tazmeenFontDecrease.addEventListener("click", function () {
-    if (currentLanguage === "urdu") {
-        tazmeenUrduFontSize = Math.max(tazmeenUrduFontSize - 2, 16);
-    } else {
-        tazmeenEnglishFontSize = Math.max(tazmeenEnglishFontSize - 2, 14);
     }
 
     updateFontSize();
