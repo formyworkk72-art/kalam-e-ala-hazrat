@@ -139,6 +139,42 @@ themeToggle.addEventListener("click", function () {
 
 
 // =====================================
+// BOOK COLLECTION SELECTOR
+
+const bookShelf = document.getElementById("bookShelf");
+const bookProfile = document.getElementById("bookProfile");
+
+if (bookShelf && bookProfile) {
+    bookShelf.addEventListener("click", function (event) {
+        const selector = event.target.closest(".book-selector");
+        if (!selector) return;
+
+        const wasOpen = selector.getAttribute("aria-expanded") === "true";
+
+        bookShelf.querySelectorAll(".book-selector").forEach(function (button) {
+            button.setAttribute("aria-expanded", "false");
+            button.classList.remove("is-open");
+        });
+
+        if (wasOpen) {
+            bookProfile.classList.add("hidden");
+            return;
+        }
+
+        selector.setAttribute("aria-expanded", "true");
+        selector.classList.add("is-open");
+
+        document.getElementById("bookProfileTitle").textContent =
+            selector.dataset.bookTitle || "Book";
+        document.getElementById("bookProfileAuthor").textContent =
+            selector.dataset.bookAuthor || "";
+        document.getElementById("bookProfileDescription").textContent =
+            selector.dataset.bookDescription || "";
+
+        bookProfile.classList.remove("hidden");
+    });
+}
+
 // MESSAGE
 // =====================================
 
