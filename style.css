@@ -1350,3 +1350,176 @@ body:has(#readerPage:not(.hidden)) .language-switch {
     margin-top: 10px;
     margin-bottom: 15px;
 }
+
+/* CENTRED Hadaiq-e-Bakhshish cover animation in the hero header */
+.hero .hero-title-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    display: block !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.hero-book-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 292px;
+    margin: 12px auto 16px;
+    perspective: 1100px;
+    isolation: isolate;
+}
+
+.hero-book-stage::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    bottom: 17px;
+    width: 180px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(16, 29, 53, .24), transparent 72%);
+    filter: blur(3px);
+    animation: hero-book-shadow 5s ease-in-out infinite;
+}
+
+.hero-book {
+    position: relative;
+    width: clamp(158px, 19vw, 218px);
+    aspect-ratio: .72;
+    transform-style: preserve-3d;
+    animation: hero-book-float 5s ease-in-out infinite;
+}
+
+.hero-book-back {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    border: 1px solid rgba(216, 189, 122, .7);
+    border-radius: 4px;
+    background: linear-gradient(145deg, #243960, #101d35 72%);
+    box-shadow: 0 12px 24px rgba(16, 29, 53, .24);
+    transform: translateZ(-10px) rotateY(180deg);
+    backface-visibility: hidden;
+}
+
+.hero-book-pages {
+    position: absolute;
+    z-index: 1;
+    top: 4px;
+    bottom: 4px;
+    left: 100%;
+    width: 20px;
+    border: 1px solid rgba(110, 98, 69, .36);
+    border-radius: 0 3px 3px 0;
+    background: repeating-linear-gradient(
+        180deg,
+        #fffdf6 0 2px,
+        #d8d0bf 2px 3px
+    );
+    box-shadow: 4px 4px 8px rgba(16, 29, 53, .2);
+    transform-origin: left center;
+    transform: translateZ(10px) rotateY(90deg);
+    backface-visibility: hidden;
+}
+
+.hero-book-spine {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: -16px;
+    width: 16px;
+    border: 1px solid rgba(216, 189, 122, .65);
+    border-radius: 3px 0 0 3px;
+    background: linear-gradient(90deg, #101d35, #3e3970 65%, #a83d36);
+    transform-origin: right center;
+    transform: translateZ(-10px) rotateY(-90deg);
+    backface-visibility: hidden;
+}
+
+.hero-book-cover {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid color-mix(in srgb, var(--brand-frame-accent) 55%, #ffffff);
+    border-radius: 4px;
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 8px 16px rgba(16, 29, 53, .22);
+    object-fit: cover;
+    object-position: 48.7% center;
+    transform: translateZ(10px);
+    backface-visibility: hidden;
+}
+
+.hero-book-gloss {
+    position: absolute;
+    z-index: 3;
+    inset: 1px;
+    overflow: hidden;
+    border-radius: 4px;
+    pointer-events: none;
+    transform: translateZ(12px);
+}
+
+.hero-book-gloss::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    left: -80%;
+    width: 42%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.24), transparent);
+    transform: skewX(-16deg);
+    animation: hero-book-sheen 7s ease-in-out infinite 1s;
+}
+
+@keyframes hero-book-float {
+    0%, 100% { transform: translateY(1px) rotateY(-9deg) rotateX(2deg); }
+    50% { transform: translateY(-8px) rotateY(2deg) rotateX(0deg); }
+}
+
+@keyframes hero-book-shadow {
+    0%, 100% { transform: scaleX(1); opacity: .72; }
+    50% { transform: scaleX(.78); opacity: .48; }
+}
+
+@keyframes hero-book-sheen {
+    0%, 58%, 100% { left: -80%; opacity: 0; }
+    68% { opacity: .8; }
+    88% { left: 140%; opacity: 0; }
+}
+
+@media screen and (max-width: 650px) {
+    .hero-book-stage {
+        min-height: 240px;
+        margin: 6px auto 2px;
+    }
+
+    .hero-book {
+        width: min(172px, 47vw);
+    }
+
+    .hero-book-stage::after {
+        bottom: 10px;
+        width: 145px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-book,
+    .hero-book-stage::after,
+    .hero-book-gloss::after {
+        animation: none !important;
+    }
+}

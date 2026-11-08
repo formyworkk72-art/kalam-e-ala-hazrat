@@ -2013,21 +2013,34 @@ const fontDecrease = document.getElementById("fontDecrease");
 const fontIncrease = document.getElementById("fontIncrease");
 
 
-function fitLinesToWidth(container, lines, preferredSize) {
-    const containerStyle = window.getComputedStyle(container);
-    const availableWidth = container.clientWidth -
-        parseFloat(containerStyle.paddingLeft) -
-        parseFloat(containerStyle.paddingRight);
-    if (!lines.length || !availableWidth) return preferredSize;
+function availableLineWidth(container) {
+    const style = window.getComputedStyle(container);
+    return container.clientWidth -
+        parseFloat(style.paddingLeft) -
+        parseFloat(style.paddingRight);
+}
+
+
+function fitVerseGroupsToWidth(groups, preferredSize) {
+    const measurableGroups = groups.filter(group => group.lines.length);
+    if (!measurableGroups.length) return preferredSize;
 
     let size = preferredSize;
-    container.style.fontSize = size + "px";
-    while (size > 7 && lines.some(function (line) {
-        return line.getBoundingClientRect().width > availableWidth;
-    })) {
-        size -= 1;
-        container.style.fontSize = size + "px";
+    function applySizeAndCheck() {
+        measurableGroups.forEach(group => {
+            group.container.style.fontSize = size + "px";
+        });
+
+        return measurableGroups.every(function (group) {
+            const availableWidth = availableLineWidth(group.container);
+            return !availableWidth || group.lines.every(function (line) {
+                return line.getBoundingClientRect().width <= availableWidth;
+            });
+        });
     }
+
+    while (size > 7 && !applySizeAndCheck()) size -= 1;
+    applySizeAndCheck();
     return size;
 }
 
@@ -2038,22 +2051,22 @@ function updateFontSize() {
         ? urduFontSize
         : englishFontSize;
 
-    document.querySelectorAll(
-        "#readerContent .verse, #readerTazmeenAshaar .verse"
-    ).forEach(
-        function (verse) {
+    const tazmeenIsVisible = isTazmeenMode &&
+        readerTazmeenAshaar.classList.contains("tazmeen-plain-text");
+    const verseGroups = tazmeenIsVisible
+        ? [{
+            container: readerTazmeenAshaar,
+            lines: Array.from(readerTazmeenAshaar.querySelectorAll(".verse-line"))
+        }]
+        : Array.from(document.querySelectorAll("#readerContent .verse")).map(function (verse) {
+            return {
+                container: verse,
+                lines: Array.from(verse.querySelectorAll(".verse-line"))
+            };
+        });
 
-            const lines = Array.from(verse.querySelectorAll(".verse-line"));
-            fitLinesToWidth(verse, lines, activeFontSize);
-        }
-    );
-
-    if (readerTazmeenAshaar.classList.contains("tazmeen-plain-text")) {
-        const lines = Array.from(readerTazmeenAshaar.querySelectorAll(".verse-line"));
-        fitLinesToWidth(readerTazmeenAshaar, lines, activeFontSize);
-    }
-
-    readerFontSizeValue.textContent = activeFontSize + "px";
+    const fittedSize = fitVerseGroupsToWidth(verseGroups, activeFontSize);
+    readerFontSizeValue.textContent = fittedSize + "px";
 }
 
 
