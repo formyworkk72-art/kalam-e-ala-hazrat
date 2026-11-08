@@ -2004,8 +2004,8 @@ window.addEventListener("popstate", function (event) {
 // =====================================
 
 const isCompactReader = window.matchMedia("(max-width: 650px)").matches;
-let englishFontSize = isCompactReader ? 44 : 30;
-let urduFontSize = isCompactReader ? 48 : 34;
+let englishFontSize = isCompactReader ? 22 : 30;
+let urduFontSize = isCompactReader ? 24 : 34;
 
 
 const fontDecrease = document.getElementById("fontDecrease");
