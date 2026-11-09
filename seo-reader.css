@@ -21,3 +21,5 @@ body[data-theme="indigo"] main { background:#fff; border-color:#aaa0d0; }
 body[data-theme="indigo"] .site-back,body[data-theme="indigo"] .reader-top-favorite,body[data-theme="indigo"] .reader-tool,body[data-theme="indigo"] .copy-full-btn { color:#302b57; border-color:#aaa0d0; background:#f7f5fc; }
 body[data-theme="indigo"] .verse-line.highlighted,body[data-theme="indigo"] .verse-action.active { background:#e5e0f4; box-shadow:0 0 0 3px #e5e0f4; }
 @media(max-width:560px) { .page-top { align-items:flex-start; flex-wrap:wrap; } .site-label { max-width:none; } .reader-tools { justify-content:flex-end; } .reader-top-favorite,.reader-tool { min-height:36px; padding:6px 9px; font-size:11px; } .verse-actions { gap:12px; } .verse-action { min-width:54px; font-size:12px; } }
+
+.seo-aliases{margin:-12px 0 18px;color:var(--muted);font-size:13px;text-align:center}.seo-language-links{display:flex;justify-content:center;gap:12px;margin:0 0 16px;font-size:13px}.seo-language-links a{color:var(--navy)}

@@ -49,7 +49,7 @@ async function getAllKalams(table) {
 
     url.searchParams.set(
       "select",
-      "id,title,lyrics,tazmeen,tazmeen_2,tazmeen_3"
+      "*"
     );
     url.searchParams.set("order", "id.asc");
 
@@ -79,6 +79,38 @@ async function getAllKalams(table) {
   return all;
 }
 
+const directoryPages = [];
+function getTitleAliases(row) {
+  if (!row) return [];
+  const fields = ["title_roman","roman_title","title_latin","latin_title","title_english","english_title","title_urdu","urdu_title","title_hindi","hindi_title","title_hi","alternate_title","alternate_name","alternate_names"];
+  const values = fields.flatMap(field => { const value=row[field]; return Array.isArray(value)?value:(value?[value]:[]); });
+  return [...new Set([String(row.title||""),...values].map(value=>String(value||"").trim()).filter(Boolean))];
+}
+function findLanguagePartner(source, targetRows, targetLanguage) {
+  if (!source) return null;
+  const direct=targetLanguage==="urdu"?["urdu_id","urdu_kalam_id","urdu_kalaam_id"]:["english_id","english_kalam_id","english_kalaam_id"];
+  for(const field of direct){const id=source[field];if(id!==undefined&&id!==null){const row=targetRows.find(item=>String(item.id)===String(id));if(row)return row;}}
+  const sourceId=String(source.id),reverse=targetLanguage==="urdu"?["english_id","english_kalam_id","english_kalaam_id"]:["urdu_id","urdu_kalam_id","urdu_kalaam_id"];
+  const row=targetRows.find(item=>reverse.some(field=>item[field]!==undefined&&item[field]!==null&&String(item[field])===sourceId));if(row)return row;
+  for(const field of ["translation_group_id","kalam_group_id","group_id","translation_key"]){const group=source[field];if(group!==undefined&&group!==null&&String(group).trim()){const match=targetRows.find(item=>item[field]!==undefined&&String(item[field])===String(group));if(match)return match;}}
+  return null;
+}
+function pageUrlFor(row, language, title=row.title, slugTitle=title){const slug=makeSlug(slugTitle,row.id);return `${SITE_URL}/${OUTPUT_DIR}/${language}/${encodeURIComponent(slug)}/`;}
+function createAlternateUrls(kalam, language, partner, field, label) {
+  const makeTitle = row => label ? `${row.title} — ${label}` : row.title;
+  const makeSlugTitle = row => label ? `${row.title} ${label}` : row.title;
+  const alternates = [{
+    language: language === "english" ? "en" : "ur",
+    url: pageUrlFor(kalam, language, makeTitle(kalam), makeSlugTitle(kalam))
+  }];
+  if (!partner || (field && !String(partner[field] || "").trim())) return alternates;
+  const partnerLanguage = language === "english" ? "urdu" : "english";
+  alternates.push({
+    language: partnerLanguage === "english" ? "en" : "ur",
+    url: pageUrlFor(partner, partnerLanguage, makeTitle(partner), makeSlugTitle(partner))
+  });
+  return alternates;
+}
 function createPage(kalam, language, pageContent = {}) {
   const title = String(pageContent.title || kalam.title || "Kalam");
   const lyrics = String(pageContent.lyrics ?? kalam.lyrics ?? "");
@@ -98,6 +130,14 @@ function createPage(kalam, language, pageContent = {}) {
 
   const isUrdu = language === "urdu";
   const isTazmeen = Boolean(pageContent.isTazmeen);
+  const aliases = [...new Set([...(pageContent.alternateNames || []), ...getTitleAliases(kalam)])]
+    .map(value => String(value || "").trim()).filter(value => value && value.toLocaleLowerCase() !== title.toLocaleLowerCase());
+  const aliasText = aliases.join(" · ");
+  const alternates = pageContent.alternates || [];
+  const hreflangMarkup = alternates.map(item => `<link rel="alternate" hreflang="${escapeHtml(item.language)}" href="${escapeHtml(item.url)}">`).join(" ");
+  const languageLinks = alternates.filter(item => item.language !== (isUrdu ? "ur" : "en")).map(item => `<a href="${escapeHtml(item.url)}" lang="${escapeHtml(item.language)}">${item.language === "ur" ? "اردو میں پڑھیں" : "Read in English"}</a>`).join(" · ");
+  const descriptionText = `${title} | Complete ${isUrdu ? "Urdu" : "Roman Urdu and English"} naat lyrics by Imam Ahmad Raza Khan.${aliases.length ? ` Also known as ${aliases.slice(0, 2).join(", ")}.` : ""}`.slice(0, 180);
+  const schema = JSON.stringify({"@context":"https://schema.org","@type":"CreativeWork",name:title,alternateName:aliases,inLanguage:isUrdu?"ur":"en",url:pageUrl,isPartOf:{"@type":"WebSite",name:"Kalam-e-Ala Hazrat",url:`${SITE_URL}/`}}).replace(/</g,"\\u003c");
 
   const safeTitle = escapeHtml(title);
 
@@ -116,16 +156,18 @@ function createPage(kalam, language, pageContent = {}) {
 
   <title>${safeTitle} | Kalam-e-Ala Hazrat</title>
 
-  <meta name="description" content="${escapeHtml(title)} — Kalam-e-Ala Hazrat. Read the complete Kalam online.">
+  <meta name="description" content="${escapeHtml(descriptionText)}">
 
   <meta name="robots" content="index, follow">
 
   <link rel="canonical" href="${pageUrl}">
+  ${hreflangMarkup}
 
   <meta property="og:title" content="${safeTitle} | Kalam-e-Ala Hazrat">
-  <meta property="og:description" content="Read ${safeTitle} online.">
+  <meta property="og:description" content="${escapeHtml(descriptionText)}">
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:type" content="article">
+  <script type="application/ld+json">${schema}</script>
 
   <style>
     :root {
@@ -156,6 +198,9 @@ function createPage(kalam, language, pageContent = {}) {
     }
     .site-back:hover, .site-back:focus-visible { transform: translateY(-1px); background: #f2e5b9; box-shadow: 0 5px 16px #172b4a20; }
     .site-back:focus-visible { outline: 3px solid #c9a64b66; outline-offset: 3px; }
+    .seo-aliases { margin: -12px 0 18px; color: var(--muted); font-size: 13px; text-align: center; }
+    .seo-language-links { display:flex; justify-content:center; gap:12px; margin:0 0 16px; font-size:13px; }
+    .seo-language-links a { color:var(--navy); }
     main { overflow: hidden; padding: clamp(22px, 5vw, 48px); border: 1px solid #d6c27b; border-radius: 22px; background: #fffefa; box-shadow: 0 12px 38px #172b4a12, inset 0 0 0 5px #f8f2dc; }
     html[lang="ur"] h1 { font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif; }
     h1 { margin: 0 0 24px; padding: 0 0 20px; border-bottom: 1px solid var(--gold-soft); color: var(--navy); font-family: "Poppins", "Noto Nastaliq Urdu", Georgia, serif; font-size: clamp(24px, 4vw, 34px); line-height: 1.65; text-align: center; }
@@ -184,6 +229,8 @@ function createPage(kalam, language, pageContent = {}) {
     </header>
     <main data-tazmeen="${isTazmeen}">
       <h1>${safeTitle}</h1>
+      ${aliasText ? `<p class="seo-aliases">Also searched as: ${escapeHtml(aliasText)}</p>` : ""}
+      ${languageLinks ? `<nav class="seo-language-links" aria-label="Other language versions">${languageLinks}</nav>` : ""}
       <div class="lyrics reader-lyrics" id="lyricsContent" lang="${isUrdu ? "ur" : "en"}" dir="${isUrdu ? "rtl" : "auto"}">${safeLyrics}</div>
     </main>
     <div class="reader-toast" id="readerToast" role="status" aria-live="polite"></div>
@@ -282,6 +329,7 @@ function createPage(kalam, language, pageContent = {}) {
 </body>
 </html>`;
 
+  directoryPages.push({ title, language, url: pageUrl });
   fs.writeFileSync(
     path.join(folder, "index.html"),
     html,
@@ -291,6 +339,11 @@ function createPage(kalam, language, pageContent = {}) {
   return pageUrl;
 }
 
+function createKalamDirectory() {
+  const sections=["english","urdu"].map(language=>{const pages=directoryPages.filter(page=>page.language===language);const heading=language==="urdu"?"اردو کلام":"English and Roman Urdu Kalam";const links=pages.map(page=>`<li><a href="${escapeHtml(page.url)}">${escapeHtml(page.title)}</a></li>`).join("\n");return `<section lang="${language=== "urdu"?"ur":"en"}" dir="${language==="urdu"?"rtl":"ltr"}"><h2>${heading}</h2><ul>${links}</ul></section>`;}).join("\n");
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>All Kalam and Naat Lyrics | Kalam-e-Ala Hazrat</title><meta name="description" content="Browse all English, Roman Urdu and Urdu Kalam and naat lyrics from Kalam-e-Ala Hazrat."><link rel="canonical" href="${SITE_URL}/${OUTPUT_DIR}/"><link rel="stylesheet" href="../seo-reader.css"><style>body{font-family:Poppins,Arial,sans-serif;background:#fbf8ed;color:#182944;margin:0;padding:20px}main{max-width:900px;margin:20px auto;background:#fffefa;border:1px solid #d6c27b;border-radius:18px;padding:24px}h1,h2{color:#172b4a}li{margin:8px 0}a{color:#172b4a}.home{display:inline-block;padding:8px 14px;border:1px solid #c9a64b;border-radius:999px;text-decoration:none;font-weight:700}</style></head><body><main><a class="home" href="${SITE_URL}/">Kalam-e-Ala Hazrat Home</a><h1>All Kalam and Naat Lyrics</h1><p>Browse each available Kalam page by language. New pages are added automatically.</p>${sections}</main></body></html>`;
+  fs.writeFileSync(path.join(OUTPUT_DIR,"index.html"),html,"utf8");
+}
 function createSitemap(urls) {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -301,15 +354,13 @@ ${urls.map(url => `  <url><loc>${escapeHtml(url)}</loc></url>`).join("\n")}
 }
 
 async function main() {
-  fs.rmSync(OUTPUT_DIR, {
-    recursive: true,
-    force: true
-  });
-
-  const [english, urdu] = await Promise.all([
+const [english, urdu] = await Promise.all([
     getAllKalams("kalaam"),
     getAllKalams("kalaam_urdu")
   ]);
+
+  // Keep the current SEO pages intact unless both source tables were fetched successfully.
+  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
 
   const sitemapUrls = [
     `${SITE_URL}/`
@@ -318,8 +369,9 @@ async function main() {
   let count = 0;
 
   for (const kalam of english) {
+    const urduPartner = findLanguagePartner(kalam, urdu, "urdu");
     if (kalam.title && kalam.lyrics) {
-      const pageUrl = createPage(kalam, "english");
+      const pageUrl = createPage(kalam, "english", { alternateNames: getTitleAliases(urduPartner), alternates: createAlternateUrls(kalam, "english", urduPartner) });
 
       sitemapUrls.push(pageUrl);
       count++;
@@ -335,7 +387,9 @@ async function main() {
         title: `${kalam.title} — ${label}`,
         slugTitle: `${kalam.title} ${label}`,
         lyrics: text,
-        isTazmeen: true
+        isTazmeen: true,
+        alternateNames: getTitleAliases(urduPartner),
+        alternates: createAlternateUrls(kalam, "english", urduPartner, field, label)
       });
 
       sitemapUrls.push(pageUrl);
@@ -344,8 +398,9 @@ async function main() {
   }
 
   for (const kalam of urdu) {
+    const englishPartner = findLanguagePartner(kalam, english, "english");
     if (kalam.title && kalam.lyrics) {
-      const pageUrl = createPage(kalam, "urdu");
+      const pageUrl = createPage(kalam, "urdu", { alternateNames: getTitleAliases(englishPartner), alternates: createAlternateUrls(kalam, "urdu", englishPartner) });
 
       sitemapUrls.push(pageUrl);
       count++;
@@ -361,7 +416,9 @@ async function main() {
         title: `${kalam.title} — ${label}`,
         slugTitle: `${kalam.title} ${label}`,
         lyrics: text,
-        isTazmeen: true
+        isTazmeen: true,
+        alternateNames: getTitleAliases(englishPartner),
+        alternates: createAlternateUrls(kalam, "urdu", englishPartner, field, label)
       });
 
       sitemapUrls.push(pageUrl);
@@ -369,6 +426,8 @@ async function main() {
     }
   }
 
+  createKalamDirectory();
+  sitemapUrls.push(`${SITE_URL}/${OUTPUT_DIR}/`);
   createSitemap(sitemapUrls);
 
   console.log(
