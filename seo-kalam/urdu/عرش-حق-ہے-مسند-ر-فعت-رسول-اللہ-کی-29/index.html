@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../../seo-reader.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -63,34 +64,21 @@
       main { border-radius: 17px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
-
-    .top-actions { display: flex; align-items: center; gap: 8px; }
-    .site-back { cursor: pointer; }
-    .copy-full-btn { min-height: 40px; padding: 8px 13px; border: 1px solid #c9a64b; border-radius: 999px; color: #172b4a; background: #fffefa; font: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: transform .16s ease, background .16s ease, box-shadow .16s ease; }
-    .copy-full-btn:hover, .copy-full-btn:focus-visible { background: #f3e9c9; box-shadow: 0 4px 12px #172b4a18; }
-    .copy-full-btn:active, .verse-action:active { transform: scale(.96); }
-    .reader-lyrics { margin-top: 2px; }
-    .couplet { padding: 17px 4px 12px; border-bottom: 1px solid #d6c27b; text-align: center; }
-    .couplet:last-child { border-bottom: 0; }
-    .verse { color: #202a39; font-size: clamp(19px, 2.6vw, 23px); line-height: 1.8; }
-    .verse[dir="rtl"] { font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif; font-size: clamp(21px, 3vw, 27px); line-height: 2.35; }
-    .verse-line { display: block; width: max-content; max-width: 100%; margin: 0 auto; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .verse-line.highlighted { border-radius: 3px; background: #f4e8b9; box-shadow: 0 0 0 3px #f4e8b9; }
-    .verse-actions { display: flex; justify-content: center; gap: clamp(18px, 7vw, 48px); margin: 10px 0 2px; padding: 8px 6px; border-top: 1px solid #e6d9ab; border-bottom: 1px solid #e6d9ab; }
-    .verse-action { min-width: 58px; padding: 5px 8px; border: 0; border-radius: 8px; color: #172b4a; background: transparent; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: color .16s ease, background .16s ease, transform .16s ease; }
-    .verse-action:hover, .verse-action:focus-visible { background: #f7f1dc; }
-    .verse-action.active { color: #172b4a; background: #f4e8b9; }
-    .reader-toast { position: fixed; z-index: 5; left: 50%; bottom: 20px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; padding: 9px 15px; border: 1px solid #c9a64b; border-radius: 999px; color: #fffefa; background: #172b4a; box-shadow: 0 5px 20px #172b4a30; font-size: 13px; transition: opacity .2s ease, transform .2s ease; }
-    .reader-toast.visible { transform: translate(-50%, 0); opacity: 1; }
-    @media (max-width: 560px) { .top-actions { gap: 6px; } .copy-full-btn { min-height: 40px; padding: 7px 10px; font-size: 12px; } .verse-actions { gap: 12px; } .verse-action { min-width: 54px; font-size: 12px; } }
   </style>
-  <link rel="stylesheet" href="../../../seo-reader.css">
 </head>
 
 <body>
   <div class="page-shell">
-    <header class="page-top" dir="rtl"><span class="site-label">Kalam-e-Ala Hazrat</span><div class="top-actions"><a class="site-back" href="https://formyworkk72-art.github.io/kalam-e-ala-hazrat/">ویب سائٹ پر واپس</a><button class="copy-full-btn" id="copyFullKalam" type="button">مکمل کلام کاپی کریں</button></div></header>
-    <main data-tazmeen="false"><h1>عرشِ حق ہے مسندِ رِفعت رسول اللہ کی</h1><div class="lyrics reader-lyrics" id="lyricsContent" lang="ur" dir="rtl">عرشِ حق ہے مسندِ رِفعت رسول اللہ کی<br>
+    <header class="page-top" dir="rtl">
+      <span class="site-label">Kalam-e-Ala Hazrat</span>
+      <div class="top-actions">
+        <a class="site-back" href="https://formyworkk72-art.github.io/kalam-e-ala-hazrat/">ویب سائٹ پر واپس</a>
+        <button class="copy-full-btn" id="copyFullKalam" type="button">مکمل کلام کاپی کریں</button>
+      </div>
+    </header>
+    <main data-tazmeen="false">
+      <h1>عرشِ حق ہے مسندِ رِفعت رسول اللہ کی</h1>
+      <div class="lyrics reader-lyrics" id="lyricsContent" lang="ur" dir="rtl">عرشِ حق ہے مسندِ رِفعت رسول اللہ کی<br>
 دیکھنی ہے حشر میں عزّت رسول اللہ کی<br>
 <br>
 قبر میں لہرائیں گے تا حشر چشمے نُور کے<br>
@@ -136,7 +124,8 @@
 سر وِ گلزارِ قدم قامت رسول اللہ کی<br>
 <br>
 اے رضاؔ خود صاحبِ قرآں ہے مَدَّاحِ حضور<br>
-تجھ سے کب ممکن ہے پھر مِدحت رسول اللہ کی</div></main>
+تجھ سے کب ممکن ہے پھر مِدحت رسول اللہ کی</div>
+    </main>
     <div class="reader-toast" id="readerToast" role="status" aria-live="polite"></div>
     <footer class="page-bottom"><a class="site-back" href="https://formyworkk72-art.github.io/kalam-e-ala-hazrat/">ویب سائٹ پر واپس</a></footer>
   </div>
@@ -158,10 +147,12 @@
         toastTimer = setTimeout(() => toast.classList.remove("visible"), 1800);
       };
       const decoder = document.createElement("div");
-      decoder.innerHTML = lyrics.innerHTML.replace(/<br\s*\/?\s*>/gi, "\n");
+      decoder.innerHTML = lyrics.innerHTML.replace(/<brs*/?s*>/gi, "
+");
       const fullLyrics = decoder.textContent || "";
       if (!isTazmeen) {
-        const lines = fullLyrics.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        const lines = fullLyrics.split(/?
+/).map(line => line.trim()).filter(Boolean);
         const key = "kalam-seo-highlight:" + location.pathname;
         let saved = {};
         try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (_) {}
@@ -192,7 +183,8 @@
           };
           const copy = makeButton(isUrdu ? "کاپی" : "Copy");
           copy.addEventListener("click", async () => {
-            try { await navigator.clipboard.writeText(coupletLines.join("\n")); showToast(isUrdu ? "اشعار کاپی ہوگئے" : "Couplet copied"); }
+            try { await navigator.clipboard.writeText(coupletLines.join("
+")); showToast(isUrdu ? "اشعار کاپی ہوگئے" : "Couplet copied"); }
             catch (_) { showToast(isUrdu ? "کاپی نہیں ہوسکا" : "Copy could not complete"); }
           });
           const highlight = makeButton(isUrdu ? "نمایاں کریں" : "Highlight");
@@ -210,7 +202,8 @@
           });
           const share = makeButton(isUrdu ? "شیئر" : "Share");
           share.addEventListener("click", async () => {
-            const text = coupletLines.join("\n");
+            const text = coupletLines.join("
+");
             try {
               if (navigator.share) { await navigator.share({ title: document.title, text }); showToast(isUrdu ? "شیئر ہوگیا" : "Shared"); }
               else { await navigator.clipboard.writeText(text); showToast(isUrdu ? "شیئر کے لیے کاپی ہوگیا" : "Copied to share"); }
@@ -224,7 +217,9 @@
       }
       copyFull.addEventListener("click", async () => {
         const title = document.querySelector("h1")?.textContent?.trim() || "Kalam";
-        try { await navigator.clipboard.writeText(title + "\n\n" + fullLyrics.trim()); showToast(isUrdu ? "مکمل کلام کاپی ہوگیا" : "Full Kalam copied"); }
+        try { await navigator.clipboard.writeText(title + "
+
+" + fullLyrics.trim()); showToast(isUrdu ? "مکمل کلام کاپی ہوگیا" : "Full Kalam copied"); }
         catch (_) { showToast(isUrdu ? "کاپی نہیں ہوسکا" : "Copy could not complete"); }
       });
     })();
