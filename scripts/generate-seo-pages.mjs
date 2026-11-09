@@ -152,7 +152,7 @@ function createPage(kalam, language, pageContent = {}) {
   <link rel="stylesheet" href="../../../seo-reader.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <title>${safeTitle} | Kalam-e-Ala Hazrat</title>
 
@@ -168,54 +168,6 @@ function createPage(kalam, language, pageContent = {}) {
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:type" content="article">
   <script type="application/ld+json">${schema}</script>
-
-  <style>
-    :root {
-      color-scheme: light;
-      --paper: #fbf8ed;
-      --ink: #182944;
-      --navy: #172b4a;
-      --gold: #c9a64b;
-      --gold-soft: #e9dba9;
-      --muted: #596579;
-    }
-    * { box-sizing: border-box; }
-    body {
-      min-height: 100vh; margin: 0; padding: 24px 16px 40px;
-      color: var(--ink);
-      background: radial-gradient(ellipse at top, #fffdf7 0%, var(--paper) 70%);
-      font-family: "Poppins", "Noto Nastaliq Urdu", Georgia, serif; line-height: 1.8;
-    }
-    .page-shell { max-width: 860px; margin: 0 auto; }
-    .page-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 auto 18px; }
-    .site-label { color: var(--navy); font-size: 14px; font-weight: 700; letter-spacing: .04em; }
-    .site-back {
-      display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 8px;
-      padding: 9px 16px; border: 1px solid var(--gold); border-radius: 999px; color: var(--navy);
-      background: linear-gradient(135deg, #fffdf7, #f3e9c9); box-shadow: 0 3px 12px #172b4a12;
-      font: inherit; font-size: 14px; font-weight: 700; text-decoration: none;
-      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-    }
-    .site-back:hover, .site-back:focus-visible { transform: translateY(-1px); background: #f2e5b9; box-shadow: 0 5px 16px #172b4a20; }
-    .site-back:focus-visible { outline: 3px solid #c9a64b66; outline-offset: 3px; }
-    .seo-aliases { margin: -12px 0 18px; color: var(--muted); font-size: 13px; text-align: center; }
-    .seo-language-links { display:flex; justify-content:center; gap:12px; margin:0 0 16px; font-size:13px; }
-    .seo-language-links a { color:var(--navy); }
-    main { overflow: hidden; padding: clamp(22px, 5vw, 48px); border: 1px solid #d6c27b; border-radius: 22px; background: #fffefa; box-shadow: 0 12px 38px #172b4a12, inset 0 0 0 5px #f8f2dc; }
-    html[lang="ur"] h1 { font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif; }
-    h1 { margin: 0 0 24px; padding: 0 0 20px; border-bottom: 1px solid var(--gold-soft); color: var(--navy); font-family: "Poppins", "Noto Nastaliq Urdu", Georgia, serif; font-size: clamp(24px, 4vw, 34px); line-height: 1.65; text-align: center; }
-    .lyrics { color: #202a39; font-size: clamp(19px, 2.6vw, 23px); line-height: 2.05; overflow-wrap: anywhere; }
-    .lyrics[dir="rtl"] { font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif; font-size: clamp(21px, 3vw, 27px); line-height: 2.35; }
-    .page-bottom { display: flex; justify-content: center; margin-top: 22px; }
-    @media (max-width: 560px) {
-      body { padding: 14px 11px 28px; }
-      .page-top { align-items: flex-start; }
-      .site-label { max-width: 42%; font-size: 12px; line-height: 1.4; }
-      .site-back { min-height: 40px; padding: 8px 12px; font-size: 13px; }
-      main { border-radius: 17px; }
-    }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
-  </style>
 </head>
 
 <body>
@@ -341,7 +293,7 @@ function createPage(kalam, language, pageContent = {}) {
 
 function createKalamDirectory() {
   const sections=["english","urdu"].map(language=>{const pages=directoryPages.filter(page=>page.language===language);const heading=language==="urdu"?"اردو کلام":"English and Roman Urdu Kalam";const links=pages.map(page=>`<li><a href="${escapeHtml(page.url)}">${escapeHtml(page.title)}</a></li>`).join("\n");return `<section lang="${language=== "urdu"?"ur":"en"}" dir="${language==="urdu"?"rtl":"ltr"}"><h2>${heading}</h2><ul>${links}</ul></section>`;}).join("\n");
-  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>All Kalam and Naat Lyrics | Kalam-e-Ala Hazrat</title><meta name="description" content="Browse all English, Roman Urdu and Urdu Kalam and naat lyrics from Kalam-e-Ala Hazrat."><link rel="canonical" href="${SITE_URL}/${OUTPUT_DIR}/"><link rel="stylesheet" href="../seo-reader.css"><style>body{font-family:Poppins,Arial,sans-serif;background:#fbf8ed;color:#182944;margin:0;padding:20px}main{max-width:900px;margin:20px auto;background:#fffefa;border:1px solid #d6c27b;border-radius:18px;padding:24px}h1,h2{color:#172b4a}li{margin:8px 0}a{color:#172b4a}.home{display:inline-block;padding:8px 14px;border:1px solid #c9a64b;border-radius:999px;text-decoration:none;font-weight:700}</style></head><body><main><a class="home" href="${SITE_URL}/">Kalam-e-Ala Hazrat Home</a><h1>All Kalam and Naat Lyrics</h1><p>Browse each available Kalam page by language. New pages are added automatically.</p>${sections}</main></body></html>`;
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>All Kalam and Naat Lyrics | Kalam-e-Ala Hazrat</title><meta name="description" content="Browse all English, Roman Urdu and Urdu Kalam and naat lyrics from Kalam-e-Ala Hazrat."><link rel="canonical" href="${SITE_URL}/${OUTPUT_DIR}/"><link rel="stylesheet" href="../seo-reader.css"></head><body><main><a class="home" href="${SITE_URL}/">Kalam-e-Ala Hazrat Home</a><h1>All Kalam and Naat Lyrics</h1><p>Browse each available Kalam page by language. New pages are added automatically.</p>${sections}</main></body></html>`;
   fs.writeFileSync(path.join(OUTPUT_DIR,"index.html"),html,"utf8");
 }
 function createSitemap(urls) {
@@ -443,3 +395,4 @@ main().catch(error => {
   console.error("SEO GENERATOR ERROR:", error);
   process.exit(1);
 });
+
