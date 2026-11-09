@@ -467,7 +467,9 @@ function isFavorite(kalam, language = currentLanguage) {
 
     if (!key) return false;
 
-    return getSavedFavorites().includes(key);
+    const directKey = `${language}:${String(kalam.id)}`;
+    const saved = getSavedFavorites();
+    return saved.includes(key) || saved.includes(directKey);
 }
 
 
@@ -506,19 +508,20 @@ function toggleFavorite(kalam, language = currentLanguage) {
 
     const favorites = getSavedFavorites();
 
-    const alreadySaved = favorites.includes(key);
+    const directKey = `${language}:${String(kalam.id)}`;
+    const alreadySaved = favorites.includes(key) || favorites.includes(directKey);
 
     let updatedFavorites;
 
     if (alreadySaved) {
 
         updatedFavorites = favorites.filter(
-            item => item !== key
+            item => item !== key && item !== directKey
         );
 
     } else {
 
-        updatedFavorites = [...favorites, key];
+        updatedFavorites = [...new Set([...favorites, key, directKey])];
     }
 
 

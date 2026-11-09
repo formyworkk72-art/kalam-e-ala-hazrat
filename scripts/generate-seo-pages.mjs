@@ -97,6 +97,7 @@ function createPage(kalam, language, pageContent = {}) {
   fs.mkdirSync(folder, { recursive: true });
 
   const isUrdu = language === "urdu";
+  const isTazmeen = Boolean(pageContent.isTazmeen);
 
   const safeTitle = escapeHtml(title);
 
@@ -108,6 +109,7 @@ function createPage(kalam, language, pageContent = {}) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../../seo-reader.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -175,16 +177,108 @@ function createPage(kalam, language, pageContent = {}) {
   <div class="page-shell">
     <header class="page-top" dir="${isUrdu ? "rtl" : "ltr"}">
       <span class="site-label">Kalam-e-Ala Hazrat</span>
-      <a class="site-back" href="${SITE_URL}/">${isUrdu ? "← ویب سائٹ پر واپس جائیں" : "← Back to website"}</a>
+      <div class="top-actions">
+        <a class="site-back" href="${SITE_URL}/">${isUrdu ? "ویب سائٹ پر واپس" : "Kalam-e-Ala Hazrat Home"}</a>
+        <button class="copy-full-btn" id="copyFullKalam" type="button">${isUrdu ? "مکمل کلام کاپی کریں" : "Copy full Kalam"}</button>
+      </div>
     </header>
-    <main>
+    <main data-tazmeen="${isTazmeen}">
       <h1>${safeTitle}</h1>
-      <div class="lyrics" lang="${isUrdu ? "ur" : "en"}" dir="${isUrdu ? "rtl" : "auto"}">${safeLyrics}</div>
+      <div class="lyrics reader-lyrics" id="lyricsContent" lang="${isUrdu ? "ur" : "en"}" dir="${isUrdu ? "rtl" : "auto"}">${safeLyrics}</div>
     </main>
-    <footer class="page-bottom">
-      <a class="site-back" href="${SITE_URL}/">${isUrdu ? "ویب سائٹ پر واپس جائیں" : "Return to Kalam-e-Ala Hazrat"}</a>
-    </footer>
+    <div class="reader-toast" id="readerToast" role="status" aria-live="polite"></div>
+    <footer class="page-bottom"><a class="site-back" href="${SITE_URL}/">${isUrdu ? "ویب سائٹ پر واپس" : "Kalam-e-Ala Hazrat Home"}</a></footer>
   </div>
+  <script>
+    (() => {
+      const main = document.querySelector("main[data-tazmeen]");
+      const lyrics = document.getElementById("lyricsContent");
+      const copyFull = document.getElementById("copyFullKalam");
+      const toast = document.getElementById("readerToast");
+      const isUrdu = document.documentElement.lang === "ur";
+      const isTazmeen = main?.dataset.tazmeen === "true";
+      if (!main || !lyrics || !copyFull) return;
+      let toastTimer;
+      const showToast = message => {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add("visible");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("visible"), 1800);
+      };
+      const decoder = document.createElement("div");
+      decoder.innerHTML = lyrics.innerHTML.replace(/<br\s*\/?\s*>/gi, "\n");
+      const fullLyrics = decoder.textContent || "";
+      if (!isTazmeen) {
+        const lines = fullLyrics.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        const key = "kalam-seo-highlight:" + location.pathname;
+        let saved = {};
+        try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (_) {}
+        const reader = document.createDocumentFragment();
+        for (let i = 0; i < lines.length; i += 2) {
+          const coupletLines = lines.slice(i, i + 2);
+          const section = document.createElement("section");
+          section.className = "couplet";
+          const verse = document.createElement("div");
+          verse.className = "verse";
+          verse.dir = isUrdu ? "rtl" : "auto";
+          const index = i / 2;
+          coupletLines.forEach((line, lineIndex) => {
+            const span = document.createElement("span");
+            span.className = "verse-line";
+            span.textContent = line;
+            if (saved[index]?.[lineIndex]) span.classList.add("highlighted");
+            verse.appendChild(span);
+          });
+          const actions = document.createElement("div");
+          actions.className = "verse-actions";
+          const makeButton = label => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "verse-action";
+            button.textContent = label;
+            return button;
+          };
+          const copy = makeButton(isUrdu ? "کاپی" : "Copy");
+          copy.addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText(coupletLines.join("\n")); showToast(isUrdu ? "اشعار کاپی ہوگئے" : "Couplet copied"); }
+            catch (_) { showToast(isUrdu ? "کاپی نہیں ہوسکا" : "Copy could not complete"); }
+          });
+          const highlight = makeButton(isUrdu ? "نمایاں کریں" : "Highlight");
+          highlight.classList.add("highlight-toggle");
+          const initiallyActive = coupletLines.some((_, n) => saved[index]?.[n]);
+          if (initiallyActive) { highlight.classList.add("active"); highlight.textContent = isUrdu ? "نمایاں" : "Highlighted"; }
+          highlight.addEventListener("click", () => {
+            const active = !highlight.classList.contains("active");
+            highlight.classList.toggle("active", active);
+            highlight.textContent = active ? (isUrdu ? "نمایاں" : "Highlighted") : (isUrdu ? "نمایاں کریں" : "Highlight");
+            const spans = [...verse.querySelectorAll(".verse-line")];
+            spans.forEach(span => span.classList.toggle("highlighted", active));
+            saved[index] = Object.fromEntries(spans.map((_, n) => [n, active]));
+            try { localStorage.setItem(key, JSON.stringify(saved)); } catch (_) {}
+          });
+          const share = makeButton(isUrdu ? "شیئر" : "Share");
+          share.addEventListener("click", async () => {
+            const text = coupletLines.join("\n");
+            try {
+              if (navigator.share) { await navigator.share({ title: document.title, text }); showToast(isUrdu ? "شیئر ہوگیا" : "Shared"); }
+              else { await navigator.clipboard.writeText(text); showToast(isUrdu ? "شیئر کے لیے کاپی ہوگیا" : "Copied to share"); }
+            } catch (error) { if (error.name !== "AbortError") showToast(isUrdu ? "شیئر نہیں ہوسکا" : "Share could not complete"); }
+          });
+          actions.append(copy, highlight, share);
+          section.append(verse, actions);
+          reader.appendChild(section);
+        }
+        lyrics.replaceChildren(reader);
+      }
+      copyFull.addEventListener("click", async () => {
+        const title = document.querySelector("h1")?.textContent?.trim() || "Kalam";
+        try { await navigator.clipboard.writeText(title + "\n\n" + fullLyrics.trim()); showToast(isUrdu ? "مکمل کلام کاپی ہوگیا" : "Full Kalam copied"); }
+        catch (_) { showToast(isUrdu ? "کاپی نہیں ہوسکا" : "Copy could not complete"); }
+      });
+    })();
+  </script>
+  <script src="../../../seo-reader.js" defer></script>
 </body>
 </html>`;
 
@@ -240,7 +334,8 @@ async function main() {
       const pageUrl = createPage(kalam, "english", {
         title: `${kalam.title} — ${label}`,
         slugTitle: `${kalam.title} ${label}`,
-        lyrics: text
+        lyrics: text,
+        isTazmeen: true
       });
 
       sitemapUrls.push(pageUrl);
@@ -265,7 +360,8 @@ async function main() {
       const pageUrl = createPage(kalam, "urdu", {
         title: `${kalam.title} — ${label}`,
         slugTitle: `${kalam.title} ${label}`,
-        lyrics: text
+        lyrics: text,
+        isTazmeen: true
       });
 
       sitemapUrls.push(pageUrl);
