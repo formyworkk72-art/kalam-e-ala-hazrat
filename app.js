@@ -2007,21 +2007,17 @@ const isCompactReader = window.matchMedia("(max-width: 650px)").matches;
 let englishFontSize = isCompactReader ? 22 : 30;
 let urduFontSize = isCompactReader ? 24 : 34;
 
-
 const fontDecrease = document.getElementById("fontDecrease");
-
 const fontIncrease = document.getElementById("fontIncrease");
-
 
 function availableLineWidth(container) {
     const style = window.getComputedStyle(container);
     return container.clientWidth -
-        parseFloat(style.paddingLeft) -
-        parseFloat(style.paddingRight);
+        parseFloat(style.paddingLeft || 0) -
+        parseFloat(style.paddingRight || 0);
 }
 
-
-function fitVerseGroupsToWidth(groups, preferredSize) {
+function fitVerseGroupsToWidth(groups, preferredSize, minimumSize) {
     const measurableGroups = groups.filter(group => group.lines.length);
     if (!measurableGroups.length) return preferredSize;
 
@@ -2034,22 +2030,21 @@ function fitVerseGroupsToWidth(groups, preferredSize) {
         return measurableGroups.every(function (group) {
             const availableWidth = availableLineWidth(group.container);
             return !availableWidth || group.lines.every(function (line) {
-                return line.getBoundingClientRect().width <= availableWidth;
+                return line.getBoundingClientRect().width <= availableWidth + 1;
             });
         });
     }
 
-    while (size > 7 && !applySizeAndCheck()) size -= 1;
+    while (size > minimumSize && !applySizeAndCheck()) size -= 1;
     applySizeAndCheck();
     return size;
 }
 
-
 function updateFontSize() {
-
-    const activeFontSize = currentLanguage === "urdu"
-        ? urduFontSize
-        : englishFontSize;
+    const isUrdu = currentLanguage === "urdu";
+    const minimumSize = isUrdu ? 16 : 14;
+    const maximumSize = isUrdu ? 48 : 44;
+    let preferredSize = isUrdu ? urduFontSize : englishFontSize;
 
     const tazmeenIsVisible = isTazmeenMode &&
         readerTazmeenAshaar.classList.contains("tazmeen-plain-text");
@@ -2065,10 +2060,28 @@ function updateFontSize() {
             };
         });
 
-    const fittedSize = fitVerseGroupsToWidth(verseGroups, activeFontSize);
-    readerFontSizeValue.textContent = fittedSize + "px";
-}
+    const hasLines = verseGroups.some(group => group.lines.length > 0);
+    const widestAllowedSize = fitVerseGroupsToWidth(
+        verseGroups,
+        maximumSize,
+        minimumSize
+    );
+    const desiredSize = Math.min(preferredSize, widestAllowedSize);
+    const fittedSize = fitVerseGroupsToWidth(
+        verseGroups,
+        desiredSize,
+        minimumSize
+    );
 
+    if (hasLines) {
+        if (isUrdu) urduFontSize = fittedSize;
+        else englishFontSize = fittedSize;
+    }
+
+    readerFontSizeValue.textContent = fittedSize + "px";
+    fontDecrease.disabled = fittedSize <= minimumSize;
+    fontIncrease.disabled = fittedSize >= widestAllowedSize;
+}
 
 window.addEventListener("resize", function () {
     requestAnimationFrame(updateFontSize);
@@ -2078,50 +2091,22 @@ if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(updateFontSize);
 }
 
+if (fontIncrease) {
+    fontIncrease.addEventListener("click", function () {
+        if (currentLanguage === "urdu") urduFontSize = Math.min(urduFontSize + 2, 48);
+        else englishFontSize = Math.min(englishFontSize + 2, 44);
+        updateFontSize();
+    });
+}
 
-fontIncrease.addEventListener("click", function () {
+if (fontDecrease) {
+    fontDecrease.addEventListener("click", function () {
+        if (currentLanguage === "urdu") urduFontSize = Math.max(urduFontSize - 2, 16);
+        else englishFontSize = Math.max(englishFontSize - 2, 14);
+        updateFontSize();
+    });
+}
 
-    if (currentLanguage === "urdu") {
-
-        urduFontSize = Math.min(
-            urduFontSize + 2,
-            48
-        );
-
-    } else {
-
-        englishFontSize = Math.min(
-            englishFontSize + 2,
-            44
-        );
-    }
-
-    updateFontSize();
-});
-
-
-fontDecrease.addEventListener("click", function () {
-
-    if (currentLanguage === "urdu") {
-
-        urduFontSize = Math.max(
-            urduFontSize - 2,
-            16
-        );
-
-    } else {
-
-        englishFontSize = Math.max(
-            englishFontSize - 2,
-            14
-        );
-    }
-
-    updateFontSize();
-});
-
-
-// =====================================
 // START WEBSITE
 // =====================================
 

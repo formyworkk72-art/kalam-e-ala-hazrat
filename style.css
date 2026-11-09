@@ -1350,3 +1350,41 @@ body:has(#readerPage:not(.hidden)) .language-switch {
     margin-top: 10px;
     margin-bottom: 15px;
 }
+
+/* Keep the page and its main sections visually centered */
+html, body {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+}
+body {
+    position: relative;
+    left: 0;
+    transform: none;
+}
+.hero {
+    width: calc(100% - 36px);
+    margin-inline: auto;
+}
+.container,
+.section-heading,
+.kalam-grid,
+.reader-page {
+    margin-inline: auto;
+}
+@media screen and (max-width: 650px) {
+    .hero {
+        width: calc(100% - 16px);
+        margin-inline: auto;
+    }
+}
+.font-btn:disabled {
+    opacity: .42;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.font-btn:disabled:hover {
+    background: var(--card);
+    color: var(--muted);
+    transform: none;
+}
